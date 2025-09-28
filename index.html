@@ -53,7 +53,166 @@
     <h1>BMGFOUNDATION</h1>
     <p>Serving the Bargachhiya Muslim Community</p>
   </div>
+</section><!-- Sidebar showing donors -->
+<aside id="sidebar" style="position:fixed; right:10px; top:80px; width:260px; max-height:70vh; overflow:auto; background:rgba(255,255,255,0.95); color:#000; padding:12px; border-radius:8px; z-index:2000;">
+  <h3 style="margin:0 0 8px 0; font-size:16px;">Recent Donors</h3>
+  <ul id="donorList" style="list-style:none; padding:0; margin:0; font-size:14px;"></ul>
+</aside>
+
+<!-- Donate Button -->
+<section class="donation">
+  <button id="donateBtn" class="btn">Donate Now</button>
 </section>
+
+<!-- Modal Form -->
+<div id="donateModal" class="modal" style="display:none;">
+  <div class="modal-content" style="max-width:480px;margin:auto;background:#fff;padding:20px;border-radius:10px;position:relative;color:#000;">
+    <span class="close" style="position:absolute;top:10px;right:15px;font-size:22px;cursor:pointer;">&times;</span>
+    <h2 style="margin-top:0;">Donate to BMGFOUNDATION</h2>
+
+    <form id="donateForm">
+      <label>Naam (public):</label><br>
+      <input type="text" id="donorName" name="donorName" required style="width:100%; padding:8px; margin-bottom:8px;"><br>
+
+      <label>Amount (INR):</label><br>
+      <input type="number" id="donationAmount" name="donationAmount" required style="width:100%; padding:8px; margin-bottom:8px;"><br>
+
+      <label>Feedback / Message (optional):</label><br>
+      <textarea id="donorMsg" name="donorMsg" rows="3" style="width:100%; padding:8px; margin-bottom:12px;"></textarea>
+
+      <label>Choose Payment:</label><br>
+      <select id="paymentOption" style="width:100%;padding:8px;margin-bottom:12px;">
+        <option value="phonepe">PhonePe / UPI</option>
+        <option value="gpay">Google Pay / UPI</option>
+        <option value="paytm">Paytm / UPI</option>
+        <option value="bank">Bank Transfer</option>
+      </select>
+
+      <div id="paymentInfo" style="margin-bottom:12px;">
+        <!-- UPI / Bank details will appear here dynamically -->
+      </div>
+
+      <button type="submit" class="btn" style="width:100%;">Proceed to Pay</button>
+    </form>
+
+    <p style="font-size:12px;color:#666;margin-top:8px;">Note: Names shown here are added immediately (unverified) unless you connect a payment gateway/webhook for verification.</p>
+  </div>
+</div>
+
+<!-- Donation Modal JS (place near end of body) -->
+<script>
+/* ====== CONFIGURE RECEIVER VPA / BANK DETAILS HERE ====== */
+const UPI = {
+  phonepe: "7050859156@axl",
+  gpay:   "7050859156@axl",
+  paytm:  "7050859156@axl"
+};
+
+const BANK_INFO = {
+  scannerName: "BMG Scanner",
+  bankingName: "Yasir Arfat",
+  name: "Yasir Arfat",
+  account: "009910338952",
+  ifsc: "IPOS0000001",
+  bank: "India Post Payments Bank"
+};
+/* ====================================================== */
+
+const modal = document.getElementById('donateModal');
+const btn = document.getElementById('donateBtn');
+const span = modal.querySelector('.close');
+const form = document.getElementById('donateForm');
+const donorListEl = document.getElementById('donorList');
+const paymentSel = document.getElementById('paymentOption');
+const paymentInfo = document.getElementById('paymentInfo');
+
+btn.onclick = () => { modal.style.display = 'block'; updatePaymentInfo(); };
+span.onclick = () => { modal.style.display = 'none'; };
+window.onclick = (e) => { if (e.target == modal) modal.style.display = 'none'; };
+
+function escapeHtml(s){ return String(s||'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+// load donors from localStorage
+function loadDonors(){
+  const arr = JSON.parse(localStorage.getItem('bmg_donors') || '[]');
+  donorListEl.innerHTML = '';
+  arr.forEach(d=>{
+    const li = document.createElement('li');
+    li.style.marginBottom='8px';
+    li.innerHTML = `<strong>${escapeHtml(d.name)}</strong> donated ₹${escapeHtml(d.amount)}<br><span style="font-size:12px;color:#444">${escapeHtml(d.msg)}</span>`;
+    donorListEl.appendChild(li);
+  });
+}
+loadDonors();
+
+// update payment info area based on select
+function updatePaymentInfo(){
+  const val = paymentSel.value;
+  if(val === 'bank'){
+    paymentInfo.innerHTML = `
+      <div style="background:#f7f7f7;padding:10px;border-radius:6px;">
+        <p style="margin:6px 0;"><strong>Scanner ka naam:</strong> ${escapeHtml(BANK_INFO.scannerName)}</p>
+        <p style="margin:6px 0;"><strong>Banking Naam:</strong> ${escapeHtml(BANK_INFO.bankingName)}</p>
+        <p style="margin:6px 0;"><strong>Name:</strong> ${escapeHtml(BANK_INFO.name)}</p>
+        <p style="margin:6px 0;"><strong>A/c No.:</strong> ${escapeHtml(BANK_INFO.account)}</p>
+        <p style="margin:6px 0;"><strong>IFSC:</strong> ${escapeHtml(BANK_INFO.ifsc)}</p>
+        <p style="margin:6px 0;"><strong>Bank:</strong> ${escapeHtml(BANK_INFO.bank)}</p>
+        <button id="copyBank" style="margin-top:8px;padding:8px;border-radius:6px;border:none;background:#333;color:#fff;cursor:pointer;">Copy Account No</button>
+      </div>`;
+    const copyBtn = document.getElementById('copyBank');
+    copyBtn && copyBtn.addEventListener('click', ()=> {
+      navigator.clipboard && navigator.clipboard.writeText(BANK_INFO.account).then(()=> alert('Account number copied to clipboard'));
+    });
+  } else {
+    const vpa = UPI[val] || '';
+    paymentInfo.innerHTML = `
+      <div style="background:#f7f7f7;padding:10px;border-radius:6px;">
+        <p style="margin:6px 0;"><strong>UPI ID:</strong> <span id="upiText">${escapeHtml(vpa)}</span></p>
+        <div style="display:flex;gap:8px;margin-top:8px;">
+          <button id="copyUpi" style="padding:8px;border-radius:6px;border:none;background:#0b6;cursor:pointer;color:#fff;">Copy UPI</button>
+          <button id="openUpi" style="padding:8px;border-radius:6px;border:none;background:#06c;cursor:pointer;color:#fff;">Open UPI app</button>
+        </div>
+      </div>`;
+    document.getElementById('copyUpi').addEventListener('click', ()=> {
+      navigator.clipboard && navigator.clipboard.writeText(vpa).then(()=> alert('UPI ID copied to clipboard'));
+    });
+    document.getElementById('openUpi').addEventListener('click', ()=> {
+      const upiLink = `upi://pay?pa=${encodeURIComponent(vpa)}&pn=${encodeURIComponent(BANK_INFO.name)}&cu=INR`;
+      window.location.href = upiLink;
+    });
+  }
+}
+
+// when payment selection changes
+paymentSel.addEventListener('change', updatePaymentInfo);
+
+// handle form submit
+form.addEventListener('submit', function(e){
+  e.preventDefault();
+  const name = document.getElementById('donorName').value.trim();
+  const amount = document.getElementById('donationAmount').value.trim();
+  const msg = document.getElementById('donorMsg').value.trim();
+  const payment = paymentSel.value;
+  if(!name || !amount){ alert('Please enter name and amount'); return; }
+
+  const arr = JSON.parse(localStorage.getItem('bmg_donors') || '[]');
+  arr.unshift({name,amount,msg,ts:Date.now(),payment,status:'pending'});
+  localStorage.setItem('bmg_donors', JSON.stringify(arr));
+  loadDonors();
+
+  if(payment === 'bank'){
+    alert('Use the bank details shown in the modal. Account No copied to clipboard.');
+    try { navigator.clipboard.writeText(BANK_INFO.account); } catch(e){}
+  } else {
+    const vpa = UPI[payment];
+    if(!vpa || vpa.includes('your')){ alert('UPI not configured. Contact +91 7050859156'); return; }
+    const upi = `upi://pay?pa=${encodeURIComponent(vpa)}&pn=${encodeURIComponent(name)}&am=${encodeURIComponent(amount)}&tn=${encodeURIComponent('BMGFOUNDATION Donation')}&cu=INR`;
+    window.location.href = upi;
+  }
+
+  modal.style.display = 'none';
+});
+</script>0
 
 <section class="about">
   <h2>About Us</h2>
