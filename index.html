@@ -1,4 +1,44 @@
-<!DOCTYPE html>
+<img src="Bmg scanner.jpg" alt="Yasir Image" style="width:100%; border-radius:10px; margin-bottom:10px;"><img src="Bmg scanner.jpg" alt="Yasir Image" style="width:100%; border-radius:10px; margin-bottom:10px;">0<!-- Donation Section -->
+<section class="donation">
+  <button id="donateBtn">Donate Now</button>
+</section>
+
+<!-- Donation Modal -->
+<div id="donationModal" class="modal">
+  <div class="modal-content">
+    <span class="close">&times;</span>
+    <h2>Donate via Bank</h2>
+    <p><strong>Scanner ka naam:</strong> BMG Scanner</p>
+    <p><strong>Banking Naam:</strong> Yasir Arfat</p>
+    <p><strong>Name:</strong> Yasir Arfat</p>
+    <p><strong>A/c No.:</strong> 009910338952</p>
+    <p><strong>IFSC:</strong> IPOS0000001</p>
+    <p><strong>Bank:</strong> India Post Payments Bank</p>
+  </div>
+</div>
+
+<script>
+  const modal = document.getElementById("donationModal");
+  const btn = document.getElementById("donateBtn");
+  const span = document.getElementsByClassName("close")[0];
+
+  // Button click → popup open
+  btn.onclick = function() {
+    modal.style.display = "block";
+  }
+
+  // Close button click → popup close
+  span.onclick = function() {
+    modal.style.display = "none";
+  }
+
+  // Click outside modal → close
+  window.onclick = function(event) {
+    if (event.target == modal) {
+      modal.style.display = "none";
+    }
+  }
+</script>0<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
