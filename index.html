@@ -1,330 +1,134 @@
-<img src="Bmg scanner.jpg" alt="Yasir Image" style="width:100%; border-radius:10px; margin-bottom:10px;"><img src="Bmg scanner.jpg" alt="Yasir Image" style="width:100%; border-radius:10px; margin-bottom:10px;">0<!-- Donation Section -->
-<section class="donation">
-  <button id="donateBtn">Donate Now</button>
-</section>
-
-<!-- Donation Modal -->
-<div id="donationModal" class="modal">
-  <div class="modal-content">
-    <span class="close">&times;</span>
-    <h2>Donate via Bank</h2>
-    <p><strong>Scanner ka naam:</strong> BMG Scanner</p>
-    <p><strong>Banking Naam:</strong> Yasir Arfat</p>
-    <p><strong>Name:</strong> Yasir Arfat</p>
-    <p><strong>A/c No.:</strong> 009910338952</p>
-    <p><strong>IFSC:</strong> IPOS0000001</p>
-    <p><strong>Bank:</strong> India Post Payments Bank</p>
-  </div>
-</div>
-
-<script>
-  const modal = document.getElementById("donationModal");
-  const btn = document.getElementById("donateBtn");
-  const span = document.getElementsByClassName("close")[0];
-
-  // Button click → popup open
-  btn.onclick = function() {
-    modal.style.display = "block";
-  }
-
-  // Close button click → popup close
-  span.onclick = function() {
-    modal.style.display = "none";
-  }
-
-  // Click outside modal → close
-  window.onclick = function(event) {
-    if (event.target == modal) {
-      modal.style.display = "none";
-    }
-  }
-</script>0<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>BMGFOUNDATION</title>
-<link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BMG Foundation</title>
+  <style>
+    body, html {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+    }
+    header {
+      background: rgba(0, 0, 0, 0.6);
+      color: white;
+      padding: 20px;
+      text-align: center;
+      position: relative;
+    }
+    .hero {
+      height: 100vh;
+      background: url('kabristan1.jpg') no-repeat center center/cover;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      text-align: center;
+    }
+    .btn {
+      background: #007bff;
+      color: white;
+      padding: 12px 25px;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    .btn:hover {
+      background: #0056b3;
+    }
+    /* Popup */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.7);
+    }
+    .modal-content {
+      background-color: #fff;
+      margin: 10% auto;
+      padding: 20px;
+      border-radius: 8px;
+      width: 90%;
+      max-width: 400px;
+      text-align: center;
+    }
+    .modal-content h2 {
+      margin-top: 0;
+    }
+    .close {
+      color: red;
+      float: right;
+      font-size: 22px;
+      cursor: pointer;
+    }
+    .payment {
+      background: #f4f4f4;
+      padding: 10px;
+      margin-top: 10px;
+      border-radius: 5px;
+      font-size: 14px;
+    }
+    .qr img {
+      width: 200px;
+      margin-top: 10px;
+      border-radius: 8px;
+    }
+    .email {
+      margin-top: 10px;
+      font-weight: bold;
+    }
+  </style>
 </head>
 <body>
 
-<section class="hero">
-  <div class="hero-text">
-    <h1>BMGFOUNDATION</h1>
-    <p>Serving the Bargachhiya Muslim Community</p>
-  </div>
-</section><!-- Sidebar showing donors -->
-<aside id="sidebar" style="position:fixed; right:10px; top:80px; width:260px; max-height:70vh; overflow:auto; background:rgba(255,255,255,0.95); color:#000; padding:12px; border-radius:8px; z-index:2000;">
-  <h3 style="margin:0 0 8px 0; font-size:16px;">Recent Donors</h3>
-  <ul id="donorList" style="list-style:none; padding:0; margin:0; font-size:14px;"></ul>
-</aside>
+  <header>
+    <h1>BMG Foundation</h1>
+    <button class="btn" onclick="openModal()">Donate</button>
+  </header>
 
-<!-- Donate Button -->
-<section class="donation">
-  <button id="donateBtn" class="btn">Donate Now</button>
-</section>
+  <section class="hero">
+    <h2>Masjid, Madrasa aur Kabristan ke liye aapka yogdaan</h2>
+  </section>
 
-<!-- Modal Form -->
-<div id="donateModal" class="modal" style="display:none;">
-  <div class="modal-content" style="max-width:480px;margin:auto;background:#fff;padding:20px;border-radius:10px;position:relative;color:#000;">
-    <span class="close" style="position:absolute;top:10px;right:15px;font-size:22px;cursor:pointer;">&times;</span>
-    <h2 style="margin-top:0;">Donate to BMGFOUNDATION</h2>
-
-    <form id="donateForm">
-      <label>Naam (public):</label><br>
-      <input type="text" id="donorName" name="donorName" required style="width:100%; padding:8px; margin-bottom:8px;"><br>
-
-      <label>Amount (INR):</label><br>
-      <input type="number" id="donationAmount" name="donationAmount" required style="width:100%; padding:8px; margin-bottom:8px;"><br>
-
-      <label>Feedback / Message (optional):</label><br>
-      <textarea id="donorMsg" name="donorMsg" rows="3" style="width:100%; padding:8px; margin-bottom:12px;"></textarea>
-
-      <label>Choose Payment:</label><br>
-      <select id="paymentOption" style="width:100%;padding:8px;margin-bottom:12px;">
-        <option value="phonepe">PhonePe / UPI</option>
-        <option value="gpay">Google Pay / UPI</option>
-        <option value="paytm">Paytm / UPI</option>
-        <option value="bank">Bank Transfer</option>
-      </select>
-
-      <div id="paymentInfo" style="margin-bottom:12px;">
-        <!-- UPI / Bank details will appear here dynamically -->
+  <!-- Popup Modal -->
+  <div id="donateModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeModal()">&times;</span>
+      <h2>Donate Now</h2>
+      <div class="payment">
+        <p><strong>Banking Name:</strong> Yasir Arfat</p>
+        <p><strong>Account No:</strong> 009910338952</p>
+        <p><strong>IFSC Code:</strong> IPOS0000001</p>
+        <p><strong>Bank:</strong> India Post Payments Bank</p>
+        <p><strong>UPI ID:</strong> 7050859156@axl</p>
       </div>
-
-      <button type="submit" class="btn" style="width:100%;">Proceed to Pay</button>
-    </form>
-
-    <p style="font-size:12px;color:#666;margin-top:8px;">Note: Names shown here are added immediately (unverified) unless you connect a payment gateway/webhook for verification.</p>
-  </div>
-</div>
-
-<!-- Donation Modal JS (place near end of body) -->
-<script>
-/* ====== CONFIGURE RECEIVER VPA / BANK DETAILS HERE ====== */
-const UPI = {
-  phonepe: "7050859156@axl",
-  gpay:   "7050859156@axl",
-  paytm:  "7050859156@axl"
-};
-
-const BANK_INFO = {
-  scannerName: "BMG Scanner",
-  bankingName: "Yasir Arfat",
-  name: "Yasir Arfat",
-  account: "009910338952",
-  ifsc: "IPOS0000001",
-  bank: "India Post Payments Bank"
-};
-/* ====================================================== */
-
-const modal = document.getElementById('donateModal');
-const btn = document.getElementById('donateBtn');
-const span = modal.querySelector('.close');
-const form = document.getElementById('donateForm');
-const donorListEl = document.getElementById('donorList');
-const paymentSel = document.getElementById('paymentOption');
-const paymentInfo = document.getElementById('paymentInfo');
-
-btn.onclick = () => { modal.style.display = 'block'; updatePaymentInfo(); };
-span.onclick = () => { modal.style.display = 'none'; };
-window.onclick = (e) => { if (e.target == modal) modal.style.display = 'none'; };
-
-function escapeHtml(s){ return String(s||'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
-
-// load donors from localStorage
-function loadDonors(){
-  const arr = JSON.parse(localStorage.getItem('bmg_donors') || '[]');
-  donorListEl.innerHTML = '';
-  arr.forEach(d=>{
-    const li = document.createElement('li');
-    li.style.marginBottom='8px';
-    li.innerHTML = `<strong>${escapeHtml(d.name)}</strong> donated ₹${escapeHtml(d.amount)}<br><span style="font-size:12px;color:#444">${escapeHtml(d.msg)}</span>`;
-    donorListEl.appendChild(li);
-  });
-}
-loadDonors();
-
-// update payment info area based on select
-function updatePaymentInfo(){
-  const val = paymentSel.value;
-  if(val === 'bank'){
-    paymentInfo.innerHTML = `
-      <div style="background:#f7f7f7;padding:10px;border-radius:6px;">
-        <p style="margin:6px 0;"><strong>Scanner ka naam:</strong> ${escapeHtml(BANK_INFO.scannerName)}</p>
-        <p style="margin:6px 0;"><strong>Banking Naam:</strong> ${escapeHtml(BANK_INFO.bankingName)}</p>
-        <p style="margin:6px 0;"><strong>Name:</strong> ${escapeHtml(BANK_INFO.name)}</p>
-        <p style="margin:6px 0;"><strong>A/c No.:</strong> ${escapeHtml(BANK_INFO.account)}</p>
-        <p style="margin:6px 0;"><strong>IFSC:</strong> ${escapeHtml(BANK_INFO.ifsc)}</p>
-        <p style="margin:6px 0;"><strong>Bank:</strong> ${escapeHtml(BANK_INFO.bank)}</p>
-        <button id="copyBank" style="margin-top:8px;padding:8px;border-radius:6px;border:none;background:#333;color:#fff;cursor:pointer;">Copy Account No</button>
-      </div>`;
-    const copyBtn = document.getElementById('copyBank');
-    copyBtn && copyBtn.addEventListener('click', ()=> {
-      navigator.clipboard && navigator.clipboard.writeText(BANK_INFO.account).then(()=> alert('Account number copied to clipboard'));
-    });
-  } else {
-    const vpa = UPI[val] || '';
-    paymentInfo.innerHTML = `
-      <div style="background:#f7f7f7;padding:10px;border-radius:6px;">
-        <p style="margin:6px 0;"><strong>UPI ID:</strong> <span id="upiText">${escapeHtml(vpa)}</span></p>
-        <div style="display:flex;gap:8px;margin-top:8px;">
-          <button id="copyUpi" style="padding:8px;border-radius:6px;border:none;background:#0b6;cursor:pointer;color:#fff;">Copy UPI</button>
-          <button id="openUpi" style="padding:8px;border-radius:6px;border:none;background:#06c;cursor:pointer;color:#fff;">Open UPI app</button>
-        </div>
-      </div>`;
-    document.getElementById('copyUpi').addEventListener('click', ()=> {
-      navigator.clipboard && navigator.clipboard.writeText(vpa).then(()=> alert('UPI ID copied to clipboard'));
-    });
-    document.getElementById('openUpi').addEventListener('click', ()=> {
-      const upiLink = `upi://pay?pa=${encodeURIComponent(vpa)}&pn=${encodeURIComponent(BANK_INFO.name)}&cu=INR`;
-      window.location.href = upiLink;
-    });
-  }
-}
-
-// when payment selection changes
-paymentSel.addEventListener('change', updatePaymentInfo);
-
-// handle form submit
-form.addEventListener('submit', function(e){
-  e.preventDefault();
-  const name = document.getElementById('donorName').value.trim();
-  const amount = document.getElementById('donationAmount').value.trim();
-  const msg = document.getElementById('donorMsg').value.trim();
-  const payment = paymentSel.value;
-  if(!name || !amount){ alert('Please enter name and amount'); return; }
-
-  const arr = JSON.parse(localStorage.getItem('bmg_donors') || '[]');
-  arr.unshift({name,amount,msg,ts:Date.now(),payment,status:'pending'});
-  localStorage.setItem('bmg_donors', JSON.stringify(arr));
-  loadDonors();
-
-  if(payment === 'bank'){
-    alert('Use the bank details shown in the modal. Account No copied to clipboard.');
-    try { navigator.clipboard.writeText(BANK_INFO.account); } catch(e){}
-  } else {
-    const vpa = UPI[payment];
-    if(!vpa || vpa.includes('your')){ alert('UPI not configured. Contact +91 7050859156'); return; }
-    const upi = `upi://pay?pa=${encodeURIComponent(vpa)}&pn=${encodeURIComponent(name)}&am=${encodeURIComponent(amount)}&tn=${encodeURIComponent('BMGFOUNDATION Donation')}&cu=INR`;
-    window.location.href = upi;
-  }
-
-  modal.style.display = 'none';
-});
-</script>0
-
-<section class="about">
-  <h2>About Us</h2>
-  <p>BMGFOUNDATION works for the welfare of the local community in Bargachhiya, supporting education, mosque, madrasa, and other social initiatives.</p>
-</section>
-
-<section class="contact">
-  <h2>Contact Us</h2>
-  <p>Email: <a href="mailto:nooralam86191@gmail.com">nooralam86191@gmail.com</a></p>
-  <p>Mobile: <a href="tel:+919137537737">+91 9137537737</a></p>
-</section>
-
-</body>
-</html>0
-<!DOCTYPE html>
-<html lang="hi">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>BMGFOUNDATION</title>
-<link rel="stylesheet" href="style.css">
-</head>
-<body>
-
-<!-- Header -->
-<header class="header">
-  <div class="container">
-    <h1 class="logo">BMGFOUNDATION</h1>
-    <nav class="nav">
-      <a href="#home">Home</a>
-      <a href="#about">About</a>
-      <a href="#projects">Projects</a>
-      <a href="#get-involved">Get Involved</a>
-      <a href="#contact">Contact</a>
-    </nav>
-  </div>
-</header>
-
-<!-- Hero Section -->
-<section class="hero" id="home">
-  <div class="overlay">
-    <div class="container">
-      <h2>Bargachhiya Gaon ki Muslim Community ke liye</h2>
-      <p>Masjid, Madrasa aur Kabristan ke liye community development programs</p>
-      <a class="btn" href="#get-involved">Donate / Volunteer</a>
+      <div class="qr">
+        <img src="Bmg scanner.jpg" alt="UPI QR Code">
+      </div>
+      <div class="email">Contact: nooralam86191@gmail.com</div>
     </div>
   </div>
-</section>
 
-<!-- About Section -->
-<section id="about" class="section">
-  <div class="container">
-    <h2>About BMGFOUNDATION</h2>
-    <p>BMGFOUNDATION ka mission: Bargachhiya gaon ki Muslim community tak basic facilities aur development projects pahunchana, Masjid, Madrasa aur Kabristan ki dekhbhal, aur community upliftment.</p>
-  </div>
-</section>
-
-<!-- Projects Section -->
-<section id="projects" class="section alt">
-  <div class="container">
-    <h2>Our Projects</h2>
-    <div class="cards">
-      <div class="card">
-        <h3>Masjid</h3>
-        <p>Renovation, maintenance aur community prayers support.</p>
-      </div>
-      <div class="card">
-        <h3>Madrasa</h3>
-        <p>Education programs, scholarships aur training for youth.</p>
-      </div>
-      <div class="card">
-        <h3>Kabristan</h3>
-        <p>Cleaning, maintenance aur respect for elders and ancestors.</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- Get Involved Section -->
-<section id="get-involved" class="section">
-  <div class="container">
-    <h2>Get Involved</h2>
-    <p>Volunteer karein ya donate karke community programs support karein.</p>
-    <a class="btn" href="#contact">Join / Donate</a>
-  </div>
-</section>
-
-<!-- Contact Section -->
-<section id="contact" class="section alt">
-  <div class="container">
-    <h2>Contact</h2>
-    <p>Email: nooralam86191@gmail.com | Mobile: 9137537737</p>
-    <form class="contact-form" action="#" method="post">
-      <input type="text" name="name" placeholder="Aapka Naam" required>
-      <input type="email" name="email" placeholder="Email" required>
-      <textarea name="message" placeholder="Message" required></textarea>
-      <button class="btn" type="submit">Send</button>
-    </form>
-  </div>
-</section>
-
-<!-- Footer -->
-<footer class="footer">
-  <div class="container">
-    <p>© <span id="year"></span> BMGFOUNDATION. All rights reserved.</p>
-  </div>
-</footer>
-
-<script>
-document.getElementById('year').textContent = new Date().getFullYear();
-</script>
+  <script>
+    function openModal() {
+      document.getElementById("donateModal").style.display = "block";
+    }
+    function closeModal() {
+      document.getElementById("donateModal").style.display = "none";
+    }
+    window.onclick = function(event) {
+      let modal = document.getElementById("donateModal");
+      if (event.target == modal) {
+        modal.style.display = "none";
+      }
+    }
+  </script>
 
 </body>
-</html>0
-
+</html>
