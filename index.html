@@ -237,7 +237,91 @@
     document.getElementById("donorName").value = "";
     alert("Thank you for donating, " + name + "!");
   }
+</script><!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BMG FOUNDATION</title>
+<link rel="stylesheet" href="style.css">
+<style>
+/* Hero Section */
+.hero {
+  background: url('kabristan1.jpg') no-repeat center center/cover;
+  height: 80vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  text-align: center;
+}
+
+/* Modal */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 100;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0,0,0,0.6);
+}
+.modal-content {
+  background-color: #fff;
+  margin: 15% auto;
+  padding: 20px;
+  width: 90%;
+  max-width: 500px;
+  border-radius: 8px;
+}
+.close {
+  color: #aaa;
+  float: right;
+  font-size: 28px;
+  cursor: pointer;
+}
+.close:hover { color: black; }
+</style>
+</head>
+<body>
+
+<!-- Hero Section -->
+<section class="hero">
+  <h1>Bargachhiya Gaon ki Muslim Community</h1>
+  <p>Masjid, Madrasa aur Kabristan</p>
+</section>
+
+<!-- Donor Popup Button -->
+<button id="donorBtn">Donor List / PDF</button>
+
+<!-- Popup Modal -->
+<div id="donorModal" class="modal">
+  <div class="modal-content">
+    <span class="close">&times;</span>
+    <h3>Account Statement PDF</h3>
+    <a href="AccountStatement_Report_6049611324_30092025_19_31 (1).pdf" target="_blank">View PDF</a>
+    <ul id="donorNames">
+      <li>Yasir Arfat - Donation for Kabristan</li>
+      <li>Noor Alam - Donation for Masjid</li>
+    </ul>
+  </div>
+</div>
+
+<script>
+var modal = document.getElementById("donorModal");
+var btn = document.getElementById("donorBtn");
+var span = document.getElementsByClassName("close")[0];
+
+btn.onclick = function() { modal.style.display = "block"; }
+span.onclick = function() { modal.style.display = "none"; }
+window.onclick = function(event) { if(event.target==modal){modal.style.display="none";} }
 </script>
+
+</body>
+</html>0
+
 
 </body>
 </html>
