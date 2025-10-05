@@ -587,11 +587,72 @@ span.onclick = function() { modal.style.display = "none"; }
 window.onclick = function(event) { if(event.target==modal){modal.style.display="none";} }
 </script>
 
-</body>
-</html>0
+</body><!-- Firebase Script (with Admin Password) -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+  import { getDatabase, ref, set, push, onValue } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-database.js";
 
+  // 🔑 Firebase config
+  const firebaseConfig = {
+    apiKey: "AIzaSyCwXS7FqUrFmRNdpEAtq-cZ1ra5bGOEofU",
+    authDomain: "bmg-foundation.firebaseapp.com",
+    projectId: "bmg-foundation",
+    storageBucket: "bmg-foundation.firebasestorage.app",
+    messagingSenderId: "755249925321",
+    appId: "1:755249925321:web:203a368d6732d554db9118",
+    measurementId: "G-KZ20LLNS95",
+    databaseURL: "https://bmg-foundation-default-rtdb.asia-southeast1.firebasedatabase.app"
+  };
 
-</body>
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+
+  // 🔐 Admin Password
+  const ADMIN_PASS = "1234"; // <- yahan apna password badal sakte ho
+
+  // 🔘 Add Donor function
+  function addDonor() {
+    const enteredPass = prompt("🔒 Enter Admin Password:");
+    if (enteredPass !== ADMIN_PASS) {
+      alert("❌ Wrong Password!");
+      return;
+    }
+
+    const name = document.getElementById("donorName").value;
+    const amount = document.getElementById("donorAmount").value;
+    const location = document.getElementById("donorLocation").value;
+    const method = document.getElementById("paymentMethod").value;
+    const date = new Date().toLocaleDateString();
+
+    if (!name || !amount || !location) {
+      alert("⚠️ Fill all fields!");
+      return;
+    }
+
+    const donorRef = push(ref(db, "donors"));
+    set(donorRef, { name, amount, location, method, date })
+      .then(() => {
+        alert("✅ Donor added successfully!");
+        document.getElementById("donorName").value = "";
+        document.getElementById("donorAmount").value = "";
+        document.getElementById("donorLocation").value = "";
+      })
+      .catch((error) => alert("❌ Error: " + error));
+  }
+
+  // 📋 Donor List Fetch (live)
+  const donorList = document.getElementById("donorList");
+  const donorsRef = ref(db, "donors");
+  onValue(donorsRef, (snapshot) => {
+    donorList.innerHTML = "";
+    snapshot.forEach((child) => {
+      const d = child.val();
+      const tr = document.createElement("tr");
+      tr.innerHTML = `<td>${d.name}</td><td>${d.amount}</td><td>${d.location}</td><td>${d.method}</td><td>${d.date}</td>`;
+      donorList.appendChild(tr);
+    });
+  });
+</script>0
+
 </html>
-0
 
