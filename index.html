@@ -1,3 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BMG Foundation</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body, html{font-family: Arial, sans-serif; background:#f4f4f4;}
+
+  /* Top Menu */
+  .top-menu{
+    position:fixed; top:0; left:0; width:100%; background:#007bff; color:white;
+    display:flex; justify-content:center; align-items:center; padding:10px; z-index:1000;
+    flex-wrap:wrap;
+  }
+  .menu-btn{
+    background:#0056b3; color:white; border:none; padding:10px 15px; margin:5px; border-radius:5px; cursor:pointer; position:relative;
+  }
+  .menu-btn:hover{background:#004494;}
+  .dropdown{
+    display:none; position:absolute; top:100%; left:0; background:white; color:black; min-width:180px; border-radius:5px; box-shadow:0 2px 5px rgba(0,0,0,0.3);}
+  .dropdown div{padding:10px; cursor:pointer;}
+  .dropdown div:hover{background:#eee;}
+
+  /* Hero Section - Stable Image */
+  .hero{
+    margin-top:70px;
+    height:80vh;
+    background: url('kabristan1.jpg') no-repeat center center;
+    background-size: cover;
+    background-position: center;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    color:white;
+    text-align:center;
+  }
+  .hero h1, .hero p {
+    text-shadow: 2px 2px 8px rgba(0,0,0,0.7); /* Text shadow for clarity */
+    font-weight: bold;
+  }
+  .hero h1{font-size:2.5em; margin-bottom:10px;}
+  .hero p{font-size:1.2em;}
+
+  /* Modal */
+  .modal{display:none; position:fixed; z-index:1001; left:0; top:0; width:100%; height:100%; overflow:auto; background:rgba(0,0,0,0.6);}
+  .modal-content{background:#fff; border-radius:10px; margin:5% auto; padding:20px; max-width:700px; position:relative;}
+  .close{position:absolute; top:10px; right:15px; font-size:28px; color:red; cursor:pointer;}
+  .close:hover{color:black;}
+
+  /* Inputs and tables */
+  input, select, button{padding:8px; margin:5px 0; width:100%; border-radius:5px; border:1px solid #ccc;}
+  button.save-btn{background:blue;color:white;border:none;cursor:pointer;}
+  button.save-btn:hover{background:darkblue;}
+  table{width:100%; border-collapse:collapse; margin-top:10px;}
+  th, td{border:1px solid #ccc; padding:8px; text-align:center;}
+  #searchDonor{margin-bottom:10px;}
+</style>
+</head>
+<body>
+
+<!-- Top Menu -->
+<div class="top-menu">
+  <div class="menu-btn" onclick="toggleDropdown('donateDropdown')">Donate
+    <div class="dropdown" id="donateDropdown">
+      <div onclick="showDonateModal()">Payment Info / QR Code</div>
+    </div>
+  </div>
+  <div class="menu-btn" onclick="toggleDropdown('donorDropdown')">Donor List
+    <div class="dropdown" id="donorDropdown">
+      <div onclick="showDonorModal()">View Donors</div>
+    </div>
+  </div>
+  <div class="menu-btn" onclick="toggleDropdown('pdfDropdown')">PDF
+    <div class="dropdown" id="pdfDropdown">
+      <div onclick="showPDF()">Old Donor PDF</div>
+    </div>
+  </div>
+  <div class="menu-btn" onclick="toggleDropdown('addDropdown')">Add Donor
+    <div class="dropdown" id="addDropdown">
+      <div onclick="showPasswordModal()">Add Donor (Admin)</div>
+    </div>
+  </div>
+</div>
+
+<!-- Hero -->
+<section class="hero">
+  <h1>Bargachhiya Gaon ki Muslim Community</h1>
+  <p>Masjid, Madrasa aur Kabristan</p>
+</section>
+
+<!-- Modals -->
+<div id="modal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="closeModal()">&times;</span>
+
+    <!-- Donate Info -->
+    <div id="donateSection" style="display:none;">
+      <h2>💳 Payment Info</h2>
+      <p>Bank: India Post Payments Bank</p>
+      <p>Account No: 009910338952</p>
+      <p>IFSC: IPOS0000001</p>
+      <p>UPI ID: 7050859156@axl</p>
+      <p><img src="Bmg scanner.jpg" style="width:200px; border-radius:8px;"></p>
+    </div>
+
+    <!-- Donor List -->
+    <div id="donorSection" style="display:none;">
+      <h2>📄 Donor List</h2>
+      <input type="text" id="searchDonor" placeholder="Search name..." onkeyup="searchDonor()">
+      <table>
+        <thead><tr><th>Name</th><th>Amount</th><th>Location</th><th>Payment Method</th><th>Date</th></tr></thead>
+        <tbody id="donorList"></tbody>
+      </table>
+    </div>
+
+    <!-- Old PDF -->
+    <div id="pdfSection" style="display:none;">
+      <h2>📄 Old Donor PDF</h2>
+      <a href="donor_list.pdf" target="_blank">View PDF</a>
+    </div>
+
+    <!-- Password for Add Donor -->
+    <div id="passwordSection" style="display:none;">
+      <h3>🔐 Enter Admin Password</h3>
+      <input type="password" id="adminPass" placeholder="Password">
+      <button onclick="checkPassword()">Submit</button>
+    </div>
+
+    <!-- Add Donor Form -->
+    <div id="addDonorForm" style="display:none;">
+      <input type="text" id="donorName" placeholder="Donor Name">
+      <input type="number" id="donorAmount" placeholder="Amount">
+      <input type="text" id="donorLocation" placeholder="Location">
+      <select id="paymentMethod">
+        <option value="UPI">UPI</option>
+        <option value="Bank">Bank</option>
+      </select>
+      <button class="save-btn" onclick="addDonor()">Save Donor</button>
+    </div>
+
+  </div>
+</div>
+
+<script>
+/* Top Menu Dropdown */
+function toggleDropdown(id){
+  const dropdown=document.getElementById(id);
+  dropdown.style.display=dropdown.style.display==="block"?"none":"block";
+  ["donateDropdown","donorDropdown","pdfDropdown","addDropdown"].forEach(d=>{
+    if(d!==id) document.getElementById(d).style.display="none";
+  });
+}
+
+/* Modal Control */
+const modal=document.getElementById("modal");
+function closeModal(){ modal.style.display="none"; }
+window.onclick=function(e){ if(e.target==modal) closeModal(); }
+
+/* Show Sections */
+function hideAll(){ 
+  ["donateSection","donorSection","pdfSection","passwordSection","addDonorForm"].forEach(s=>document.getElementById(s).style.display="none");
+}
+function showDonateModal(){ hideAll(); document.getElementById("donateSection").style.display="block"; modal.style.display="block"; }
+function showDonorModal(){ hideAll(); document.getElementById("donorSection").style.display="block"; modal.style.display="block"; renderDonors(); }
+function showPDF(){ hideAll(); document.getElementById("pdfSection").style.display="block"; modal.style.display="block"; }
+function showPasswordModal(){ hideAll(); document.getElementById("passwordSection").style.display="block"; modal.style.display="block"; }
+
+/* Admin Password */
+const adminPass="1234";
+function checkPassword(){
+  const pass=document.getElementById("adminPass").value;
+  if(pass===adminPass){
+    document.getElementById("passwordSection").style.display="none";
+    document.getElementById("addDonorForm").style.display="block";
+  } else alert("❌ Wrong Password!");
+}
+
+/* Donors LocalStorage */
+let donors=JSON.parse(localStorage.getItem("donors"))||[];
+function renderDonors(){
+  const list=document.getElementById("donorList"); list.innerHTML="";
+  donors.forEach(d=>{
+    const tr=document.createElement("tr");
+    tr.innerHTML=`<td>${d.name}</td><td>${d.amount}</td><td>${d.location}</td><td>${d.method}</td><td>${d.date}</td>`;
+    list.appendChild(tr);
+  });
+}
+
+/* Add Donor */
+function addDonor(){
+  const name=document.getElementById("donorName").value;
+  const amount=document.getElementById("donorAmount").value;
+  const location=document.getElementById("donorLocation").value;
+  const method=document.getElementById("paymentMethod").value;
+  const date=new Date().toLocaleDateString();
+  if(!name||!amount||!location){ alert("Fill all fields!"); return; }
+  donors.push({name,amount,location,method,date});
+  localStorage.setItem("donors",JSON.stringify(donors));
+  renderDonors();
+  alert("✅ Donor added!");
+  document.getElementById("donorName").value="";
+  document.getElementById("donorAmount").value="";
+  document.getElementById("donorLocation").value="";
+}
+
+/* Search Donor */
+function searchDonor(){
+  const search=document.getElementById("searchDonor").value.toLowerCase0
 <!-- Contact Section -->
 <section id="contact" style="padding:50px; background:#f9f9f9; text-align:center;">
   <h2>Contact Us</h2>
