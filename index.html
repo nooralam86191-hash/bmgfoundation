@@ -59,7 +59,57 @@
   #searchDonor{margin-bottom:10px;}
 </style>
 </head>
-<body>
+<body><!-- Firebase SDK -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+  import { getDatabase, ref, set, push, onValue } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-database.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyCwXS7FqUrFmRNdpEAtq-cZ1ra5bGOEofU",
+    authDomain: "bmg-foundation.firebaseapp.com",
+    projectId: "bmg-foundation",
+    storageBucket: "bmg-foundation.firebasestorage.app",
+    messagingSenderId: "755249925321",
+    appId: "1:755249925321:web:203a368d6732d554db9118",
+    measurementId: "G-KZ20LLNS95",
+    databaseURL: "https://bmg-foundation-default-rtdb.asia-southeast1.firebasedatabase.app"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+
+  // Add donor to Firebase
+  function addDonor() {
+    const name = document.getElementById("donorName").value;
+    const amount = document.getElementById("donorAmount").value;
+    const location = document.getElementById("donorLocation").value;
+    const method = document.getElementById("paymentMethod").value;
+    const date = new Date().toLocaleDateString();
+
+    if (!name || !amount || !location) {
+      alert("Fill all fields!");
+      return;
+    }
+
+    const donorRef = push(ref(db, "donors"));
+    set(donorRef, { name, amount, location, method, date });
+    alert("✅ Donor added successfully!");
+  }
+
+  // Fetch donor list live
+  const donorList = document.getElementById("donorList");
+  const donorsRef = ref(db, "donors");
+  onValue(donorsRef, (snapshot) => {
+    donorList.innerHTML = "";
+    snapshot.forEach((child) => {
+      const d = child.val();
+      const tr = document.createElement("tr");
+      tr.innerHTML = `<td>${d.name}</td><td>${d.amount}</td><td>${d.location}</td><td>${d.method}</td><td>${d.date}</td>`;
+      donorList.appendChild(tr);
+    });
+  });
+</script>0
+
 
 <!-- Top Menu -->
 <div class="top-menu">
