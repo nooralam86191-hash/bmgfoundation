@@ -89,8 +89,6 @@
     if (!name || !amount || !location) {
       alert("Fill all fields!");
       return;
-    }
-
     const donorRef = push(ref(db, "donors"));
     set(donorRef, { name, amount, location, method, date });
     alert("✅ Donor added successfully!");
@@ -112,20 +110,6 @@
 
 
 <!-- Top Menu -->
-<div class="top-menu">
-  <div class="menu-btn" onclick="toggleDropdown('donateDropdown')">Donate
-    <div class="dropdown" id="donateDropdown">
-      <div onclick="showDonateModal()">Payment Info / QR Code</div>
-    </div>
-  </div>
-  <div class="menu-btn" onclick="toggleDropdown('donorDropdown')">Donor List
-    <div class="dropdown" id="donorDropdown">
-      <div onclick="showDonorModal()">View Donors</div>
-    </div>
-  </div>
-  <div class="menu-btn" onclick="toggleDropdown('pdfDropdown')">PDF
-    <div class="dropdown" id="pdfDropdown">
-      <div onclick="showPDF()">Old Donor PDF</div>
     </div>
   </div>
   <div class="menu-btn" onclick="toggleDropdown('addDropdown')">Add Donor
