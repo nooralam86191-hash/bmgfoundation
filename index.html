@@ -1,597 +1,455 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>BMG Foundation</title>
-<style>
-  *{margin:0;padding:0;box-sizing:border-box;}
-  body, html{font-family: Arial, sans-serif; background:#f4f4f4;}
-
-  /* Top Menu */
-  .top-menu{
-    position:fixed; top:0; left:0; width:100%; background:#007bff; color:white;
-    display:flex; justify-content:center; align-items:center; padding:10px; z-index:1000;
-    flex-wrap:wrap;
-  }
-  .menu-btn{
-    background:#0056b3; color:white; border:none; padding:10px 15px; margin:5px; border-radius:5px; cursor:pointer; position:relative;
-  }
-  .menu-btn:hover{background:#004494;}
-  .dropdown{
-    display:none; position:absolute; top:100%; left:0; background:white; color:black; min-width:180px; border-radius:5px; box-shadow:0 2px 5px rgba(0,0,0,0.3);}
-  .dropdown div{padding:10px; cursor:pointer;}
-  .dropdown div:hover{background:#eee;}
-
-  /* Hero Section - Stable Image */
-  .hero{
-    margin-top:70px;
-    height:80vh;
-    background: url('kabristan1.jpg') no-repeat center center;
-    background-size: cover;
-    background-position: center;
-    display:flex;
-    flex-direction:column;
-    justify-content:center;
-    align-items:center;
-    color:white;
-    text-align:center;
-  }
-  .hero h1, .hero p {
-    text-shadow: 2px 2px 8px rgba(0,0,0,0.7); /* Text shadow for clarity */
-    font-weight: bold;
-  }
-  .hero h1{font-size:2.5em; margin-bottom:10px;}
-  .hero p{font-size:1.2em;}
-
-  /* Modal */
-  .modal{display:none; position:fixed; z-index:1001; left:0; top:0; width:100%; height:100%; overflow:auto; background:rgba(0,0,0,0.6);}
-  .modal-content{background:#fff; border-radius:10px; margin:5% auto; padding:20px; max-width:700px; position:relative;}
-  .close{position:absolute; top:10px; right:15px; font-size:28px; color:red; cursor:pointer;}
-  .close:hover{color:black;}
-
-  /* Inputs and tables */
-  input, select, button{padding:8px; margin:5px 0; width:100%; border-radius:5px; border:1px solid #ccc;}
-  button.save-btn{background:blue;color:white;border:none;cursor:pointer;}
-  button.save-btn:hover{background:darkblue;}
-  table{width:100%; border-collapse:collapse; margin-top:10px;}
-  th, td{border:1px solid #ccc; padding:8px; text-align:center;}
-  #searchDonor{margin-bottom:10px;}
-</style>
-</head>
-<body><!-- Firebase SDK -->
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
-  import { getDatabase, ref, set, push, onValue } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-database.js";
-
-  const firebaseConfig = {
-    apiKey: "AIzaSyCwXS7FqUrFmRNdpEAtq-cZ1ra5bGOEofU",
-    authDomain: "bmg-foundation.firebaseapp.com",
-    projectId: "bmg-foundation",
-    storageBucket: "bmg-foundation.firebasestorage.app",
-    messagingSenderId: "755249925321",
-    appId: "1:755249925321:web:203a368d6732d554db9118",
-    measurementId: "G-KZ20LLNS95",
-    databaseURL: "https://bmg-foundation-default-rtdb.asia-southeast1.firebasedatabase.app"
-  };
-
-  const app = initializeApp(firebaseConfig);
-  const db = getDatabase(app);
-
-  // Add donor to Firebase
-  function addDonor() {
-    const name = document.getElementById("donorName").value;
-    const amount = document.getElementById("donorAmount").value;
-    const location = document.getElementById("donorLocation").value;
-    const method = document.getElementById("paymentMethod").value;
-    const date = new Date().toLocaleDateString();
-
-    if (!name || !amount || !location) {
-      alert("Fill all fields!");
-      return;
-    }
-
-    const donorRef = push(ref(db, "donors"));
-    set(donorRef, { name, amount, location, method, date });
-    alert("✅ Donor added successfully!");
-  }
-
-  // Fetch donor list live
-  const donorList = document.getElementById("donorList");
-  const donorsRef = ref(db, "donors");
-  onValue(donorsRef, (snapshot) => {
-    donorList.innerHTML = "";
-    snapshot.forEach((child) => {
-      const d = child.val();
-      const tr = document.createElement("tr");
-      tr.innerHTML = `<td>${d.name}</td><td>${d.amount}</td><td>${d.location}</td><td>${d.method}</td><td>${d.date}</td>`;
-      donorList.appendChild(tr);
-    });
-  });
-</script>0
-
-
-<!-- Top Menu -->
-<div class="top-menu">
-  <div class="menu-btn" onclick="toggleDropdown('donateDropdown')">Donate
-    <div class="dropdown" id="donateDropdown">
-      <div onclick="showDonateModal()">Payment Info / QR Code</div>
-    </div>
-  </div>
-  <div class="menu-btn" onclick="toggleDropdown('donorDropdown')">Donor List
-    <div class="dropdown" id="donorDropdown">
-      <div onclick="showDonorModal()">View Donors</div>
-    </div>
-  </div>
-  <div class="menu-btn" onclick="toggleDropdown('pdfDropdown')">PDF
-    <div class="dropdown" id="pdfDropdown">
-      <div onclick="showPDF()">Old Donor PDF</div>
-    </div>
-  </div>
-  <div class="menu-btn" onclick="toggleDropdown('addDropdown')">Add Donor
-    <div class="dropdown" id="addDropdown">
-      <div onclick="showPasswordModal()">Add Donor (Admin)</div>
-    </div>
-  </div>
-</div>
-
-<!-- Hero -->
-<section class="hero">
-  <h1>Bargachhiya Gaon ki Muslim Community</h1>
-  <p>Masjid, Madrasa aur Kabristan</p>
-</section>
-
-<!-- Modals -->
-<div id="modal" class="modal">
-  <div class="modal-content">
-    <span class="close" onclick="closeModal()">&times;</span>
-
-    <!-- Donate Info -->
-    <div id="donateSection" style="display:none;">
-      <h2>💳 Payment Info</h2>
-      <p>Bank: India Post Payments Bank</p>
-      <p>Account No: 009910338952</p>
-      <p>IFSC: IPOS0000001</p>
-      <p>UPI ID: 7050859156@axl</p>
-      <p><img src="Bmg scanner.jpg" style="width:200px; border-radius:8px;"></p>
-    </div>
-
-    <!-- Donor List -->
-    <div id="donorSection" style="display:none;">
-      <h2>📄 Donor List</h2>
-      <input type="text" id="searchDonor" placeholder="Search name..." onkeyup="searchDonor()">
-      <table>
-        <thead><tr><th>Name</th><th>Amount</th><th>Location</th><th>Payment Method</th><th>Date</th></tr></thead>
-        <tbody id="donorList"></tbody>
-      </table>
-    </div>
-
-    <!-- Old PDF -->
-    <div id="pdfSection" style="display:none;">
-      <h2>📄 Old Donor PDF</h2>
-      <a href="donor_list.pdf" target="_blank">View PDF</a>
-    </div>
-
-    <!-- Password for Add Donor -->
-    <div id="passwordSection" style="display:none;">
-      <h3>🔐 Enter Admin Password</h3>
-      <input type="password" id="adminPass" placeholder="Password">
-      <button onclick="checkPassword()">Submit</button>
-    </div>
-
-    <!-- Add Donor Form -->
-    <div id="addDonorForm" style="display:none;">
-      <input type="text" id="donorName" placeholder="Donor Name">
-      <input type="number" id="donorAmount" placeholder="Amount">
-      <input type="text" id="donorLocation" placeholder="Location">
-      <select id="paymentMethod">
-        <option value="UPI">UPI</option>
-        <option value="Bank">Bank</option>
-      </select>
-      <button class="save-btn" onclick="addDonor()">Save Donor</button>
-    </div>
-
-  </div>
-</div>
-
-<script>
-/* Top Menu Dropdown */
-function toggleDropdown(id){
-  const dropdown=document.getElementById(id);
-  dropdown.style.display=dropdown.style.display==="block"?"none":"block";
-  ["donateDropdown","donorDropdown","pdfDropdown","addDropdown"].forEach(d=>{
-    if(d!==id) document.getElementById(d).style.display="none";
-  });
-}
-
-/* Modal Control */
-const modal=document.getElementById("modal");
-function closeModal(){ modal.style.display="none"; }
-window.onclick=function(e){ if(e.target==modal) closeModal(); }
-
-/* Show Sections */
-function hideAll(){ 
-  ["donateSection","donorSection","pdfSection","passwordSection","addDonorForm"].forEach(s=>document.getElementById(s).style.display="none");
-}
-function showDonateModal(){ hideAll(); document.getElementById("donateSection").style.display="block"; modal.style.display="block"; }
-function showDonorModal(){ hideAll(); document.getElementById("donorSection").style.display="block"; modal.style.display="block"; renderDonors(); }
-function showPDF(){ hideAll(); document.getElementById("pdfSection").style.display="block"; modal.style.display="block"; }
-function showPasswordModal(){ hideAll(); document.getElementById("passwordSection").style.display="block"; modal.style.display="block"; }
-
-/* Admin Password */
-const adminPass="1234";
-function checkPassword(){
-  const pass=document.getElementById("adminPass").value;
-  if(pass===adminPass){
-    document.getElementById("passwordSection").style.display="none";
-    document.getElementById("addDonorForm").style.display="block";
-  } else alert("❌ Wrong Password!");
-}
-
-/* Donors LocalStorage */
-let donors=JSON.parse(localStorage.getItem("donors"))||[];
-function renderDonors(){
-  const list=document.getElementById("donorList"); list.innerHTML="";
-  donors.forEach(d=>{
-    const tr=document.createElement("tr");
-    tr.innerHTML=`<td>${d.name}</td><td>${d.amount}</td><td>${d.location}</td><td>${d.method}</td><td>${d.date}</td>`;
-    list.appendChild(tr);
-  });
-}
-
-/* Add Donor */
-function addDonor(){
-  const name=document.getElementById("donorName").value;
-  const amount=document.getElementById("donorAmount").value;
-  const location=document.getElementById("donorLocation").value;
-  const method=document.getElementById("paymentMethod").value;
-  const date=new Date().toLocaleDateString();
-  if(!name||!amount||!location){ alert("Fill all fields!"); return; }
-  donors.push({name,amount,location,method,date});
-  localStorage.setItem("donors",JSON.stringify(donors));
-  renderDonors();
-  alert("✅ Donor added!");
-  document.getElementById("donorName").value="";
-  document.getElementById("donorAmount").value="";
-  document.getElementById("donorLocation").value="";
-}
-
-/* Search Donor */
-function searchDonor(){
-  const search=document.getElementById("searchDonor").value.toLowerCase0
-<!-- Contact Section -->
-<section id="contact" style="padding:50px; background:#f9f9f9; text-align:center;">
-  <h2>Contact Us</h2>
-  <p>Aap apna message bhej sakte hain, hume turant email mil jayega.</p>
-  
-  <form action="https://formspree.io/f/mnngdgze" method="POST" style="max-width:500px; margin:0 auto; text-align:left;">
-    <label>Your Name:</label>
-    <input type="text" name="name" required style="width:100%; padding:10px; margin:5px 0;">
-
-    <label>Your Email:</label>
-    <input type="email" name="_replyto" required style="width:100%; padding:10px; margin:5px 0;">
-
-    <label>Your Message:</label>
-    <textarea name="message" required style="width:100%; padding:10px; margin:5px 0; height:120px;"></textarea>
-
-    <button type="submit" style="padding:10px 20px; background:green; color:#fff; border:none; cursor:pointer;">Send</button>
-  </form>
-</section>0<!DOCTYPE html>
-<html lang="en">
-<head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>BMG Foundation</title>
+
+  <!-- Firebase SDKs (CDN) -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-analytics.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js"></script>
+
   <style>
-    body, html {
-      margin: 0;
-      padding: 0;
-      font-family: Arial, sans-serif;
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body, html{font-family: Arial, sans-serif; background:#f4f4f4;}
+    .top-menu{
+      position:fixed; top:0; left:0; width:100%; background:#007bff; color:white;
+      display:flex; justify-content:center; align-items:center; padding:10px; z-index:1000;
     }
-
-    header {
-      background: rgba(0,0,0,0.6);
-      color: white;
-      padding: 20px;
-      text-align: center;
-      position: relative;
+    .menu-btn{
+      background:#0056b3; color:white; border:none; padding:10px 20px; margin:0 5px; border-radius:5px; cursor:pointer;
+      position:relative; font-size:16px;
     }
-
-    .hero {
-      height: 100vh;
-      background: url('kabristan1.jpg') no-repeat center center/cover;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      color: white;
-      text-align: center;
+    .menu-btn:hover{background:#004494;}
+    .admin-btn{background:#28a745;}
+    .admin-btn:hover{background:#218838;}
+    .dropdown{
+      display:none; position:absolute; top:110%; left:0; background:white; color:black;
+      min-width:200px; border-radius:5px; box-shadow:0 2px 5px rgba(0,0,0,0.3); transition:all 0.2s;
     }
-
-    .btn {
-      background: #007bff;
-      color: white;
-      padding: 12px 25px;
-      border: none;
-      border-radius: 5px;
-      font-size: 16px;
-      cursor: pointer;
-      margin-top: 10px;
+    .dropdown .dropdown-item{
+      padding:12px; cursor:pointer; border-bottom:1px solid #eee;
     }
-
-    .btn:hover {
-      background: #0056b3;
+    .dropdown .dropdown-item:last-child{border-bottom:none;}
+    .dropdown .dropdown-item:hover{background:#f4f4f4;}
+    .hero{
+      margin-top:70px;
+      height:70vh;
+      background: url('kabristan1.jpg') no-repeat center center;
+      background-size:cover;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      align-items:center;
+      color:white; text-align:center;
     }
-
-    .modal {
-  display: none;           /* Hidden by default */
-  position: fixed;         /* Screen ke top me scroll se independent */
-  top: 0;                  /* Top se start */
-  left: 50%;               /* Horizontal center */
-  transform: translateX(-50%); /* Center align */
-  z-index: 1000;           /* Sab content ke upar */
-  width: 90%;              /* Width */
-  max-width: 500px;        /* Max width */
-  padding: 20px;           /* Padding */
-  background-color: #fff;  /* Background color */
-  border-radius: 8px;      /* Rounded corners */
-  box-shadow: 0 5px 15px rgba(0,0,0,0.3); /* Shadow */
-}   }
-
-    .modal-content {
-      background-color: #fff;
-      margin: 10% auto;
-      padding: 20px;
-      border-radius: 8px;
-      width: 90%;
-      max-width: 400px;
-      text-align: center;
+    .hero h1{font-size:2.2em; margin-bottom:10px; font-weight:bold;}
+    .hero p{font-size:1.2em; text-shadow:2px 2px 8px rgba(0,0,0,0.4);}
+    .modal{
+      display:none; position:fixed; z-index:1001; left:0; top:0; width:100%; height:100%;
+      background:rgba(0,0,0,0.5);
     }
-
-    .modal-content h2 {
-      margin-top: 0;
+    .modal-content{
+      background:#fff; border-radius:10px; margin:5% auto; padding:20px; max-width:700px; position:relative;
+      min-height:100px; box-shadow: 1px 1px 20px #22222220;
     }
-
-    .close {
-      color: red;
-      float: right;
-      font-size: 22px;
-      cursor: pointer;
+    .close{
+      position:absolute; top:10px; right:15px; font-size:28px; color:red; cursor:pointer;
     }
-
-    .payment {
-      background: #f4f4f4;
-      padding: 10px;
-      margin-top: 10px;
-      border-radius: 5px;
-      font-size: 14px;
+    .close:hover{color:black;}
+    input, select, button{padding:8px; margin-top:4px; width:100%; border-radius:5px; border:1px solid #bbb; box-sizing:border-box;}
+    button.save-btn, button.login-btn{background:#007bff;color:white;border:none;cursor:pointer;}
+    button.save-btn:hover, button.login-btn:hover{background:#0056b3;}
+    .logout-btn{background:#dc3545; color:white; border:none; padding:10px; border-radius:5px; cursor:pointer; margin:10px;}
+    .logout-btn:hover{background:#c82333;}
+    table{width:100%; border-collapse:collapse; margin-top:10px;}
+    th, td{border:1px solid #ccc; padding:8px 4px; text-align:center;}
+    #searchDonor{margin-bottom:10px;}
+    .admin-section{display:none;}
+    @media(max-width:600px){
+      .top-menu{flex-direction:column;}
+      .menu-btn{width:90vw;margin:4px 0;}
+      .modal-content{max-width:97vw;}
     }
-
-    .qr img {
-      width: 200px;
-      margin-top: 10px;
-      border-radius: 8px;
-    }
-
-    .email {
-      margin-top: 10px;
-      font-weight: bold;
-    }
-
-    /* Donor list */
-    #donorSection {
-      background: #f9f9f9;
-      padding: 20px;
-      text-align: center;
-    }
-    #donorSection ul {
-      list-style: none;
-      padding: 0;
-    }
-    #donorSection li {
-      padding: 5px 0;
-      border-bottom: 1px solid #ccc;
-      font-weight: bold;
-    }
-
-    /* Ad/banner */
-    .ad-banner {
-      background: #ffeb3b;
-      color: black;
-      padding: 10px;
-      text-align: center;
-      font-weight: bold;
-    }
-
-    /* Input for donor name and method */
-    .donor-inputs input, .donor-inputs select, .donor-inputs button {
-      padding: 8px;
-      margin: 5px;
-      font-size: 14px;
-    }
-
-    .donor-inputs button {
-      background: green;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-    .donor-inputs button:hover {
-      background: darkgreen;
-    }
-
   </style>
 </head>
 <body>
 
-<header>
-  <h1>BMG Foundation</h1>
-  <button class="btn" onclick="openModal()">Donate</button>
-</header>
-
-<!-- Hero Section -->
-<section class="hero">
-  <h2>Masjid, Madrasa aur Kabristan ke liye aapka yogdaan</h2>
-</section>
-
-<!-- Ad / Banner -->
-<div class="ad-banner">
-  Support your community – Every donation counts!
-</div>
-
-<!-- Donate Popup Modal -->
-<div id="donateModal" class="modal">
-  <div class="modal-content">
-    <span class="close" onclick="closeModal()">&times;</span>
-    <h2>Donate Now</h2>
-    <div class="payment">
-      <p><strong>Banking Name:</strong> Yasir Arfat</p>
-      <p><strong>Account No:</strong> 009910338952</p>
-      <p><strong>IFSC Code:</strong> IPOS0000001</p>
-      <p><strong>Bank:</strong> India Post Payments Bank</p>
-      <p><strong>UPI ID:</strong> 7050859156@axl</p>
+  <!-- Top Menu -->
+  <div class="top-menu">
+    <div class="menu-btn" onclick="toggleDropdown(event,'donateDropdown')">Donate
+      <div class="dropdown" id="donateDropdown">
+        <div class="dropdown-item" onclick="showSection('donateSection')">Payment Info / QR Code</div>
+      </div>
     </div>
-    <div class="qr">
-      <img src="Bmg scanner.jpg" alt="UPI QR Code">
+    <div class="menu-btn" onclick="toggleDropdown(event,'donorDropdown')">Donor List
+      <div class="dropdown" id="donorDropdown">
+        <div class="dropdown-item" onclick="showSection('donorSection')">View Donors</div>
+      </div>
     </div>
-    <div class="email">Contact: nooralam86191@gmail.com</div>
-    
-    <!-- Donor Name & Method -->
-    <div class="donor-inputs">
-      <input type="text" id="donorName" placeholder="Your Name">
-      <select id="paymentMethod">
-        <option value="UPI">UPI</option>
-        <option value="Bank">Bank</option>
-      </select>
-      <button onclick="addDonor()">Donate</button>
+    <div class="menu-btn" onclick="toggleDropdown(event,'pdfDropdown')">PDF
+      <div class="dropdown" id="pdfDropdown">
+        <div class="dropdown-item" onclick="showSection('pdfSection')">Old Donor PDF</div>
+      </div>
     </div>
-    
-    <!-- Donor List -->
-    <div id="donorSection">
-      <h3>Donor List</h3>
-      <ul id="donorList"></ul>
+    <div class="menu-btn" onclick="toggleDropdown(event,'workDropdown')">Work & Pay
+      <div class="dropdown" id="workDropdown">
+        <div class="dropdown-item" onclick="showSection('viewWorkSection')">View Work & Pay</div>
+      </div>
+    </div>
+    <div class="menu-btn" onclick="toggleDropdown(event,'labourDropdown')">Labour Charge
+      <div class="dropdown" id="labourDropdown">
+        <div class="dropdown-item" onclick="showSection('viewLabourSection')">View Labour Charge</div>
+      </div>
+    </div>
+    <div class="menu-btn admin-btn" id="adminBtn" onclick="toggleDropdown(event,'adminDropdown')" style="display:none;">Admin Panel
+      <div class="dropdown" id="adminDropdown">
+        <div class="dropdown-item" onclick="showSection('addDonorSection')">Add Donor</div>
+        <div class="dropdown-item" onclick="showSection('addWorkSection')">Add Work & Pay</div>
+        <div class="dropdown-item" onclick="showSection('addLabourSection')">Add Labour Charge</div>
+      </div>
+    </div>
+    <div class="menu-btn" onclick="showSection('loginSection')" id="loginBtn">Login</div>
+    <button class="logout-btn" id="logoutBtn" onclick="logout()" style="display:none;">Logout</button>
+  </div>
+
+  <!-- Hero -->
+  <section class="hero">
+    <h1>Bargachhiya Gaon ki Muslim Community</h1>
+    <p>Masjid, Madrasa aur Kabristan</p>
+  </section>
+
+  <!-- Modal Box -->
+  <div id="modal" class="modal" onclick="backdropClick(event)">
+    <div class="modal-content">
+      <span class="close" onclick="closeModal()">&times;</span>
+
+      <!-- Login Section -->
+      <div id="loginSection" style="display:none;">
+        <h2>🔐 Admin Login</h2>
+        <input type="email" id="loginEmail" placeholder="Email (admin@bmg.com)">
+        <input type="password" id="loginPassword" placeholder="Password (password123)">
+        <button class="login-btn" onclick="login()">Login</button>
+      </div>
+
+      <div id="donateSection" style="display:none;">
+        <h2>💳 Payment Info</h2>
+        <p>Bank: India Post Payments Bank</p>
+        <p>Account No: <b>009910338952</b></p>
+        <p>IFSC: <b>IPOS0000001</b></p>
+        <p>UPI ID: <b>7050859156@axl</b></p>
+        <p><img src="Bmg scanner.jpg" alt="QR Code" style="width:180px; border-radius:8px;"></p>
+      </div>
+
+      <div id="donorSection" style="display:none;">
+        <h2>📄 Donor List</h2>
+        <input type="text" id="searchDonor" placeholder="Search name..." onkeyup="searchDonor()">
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Amount</th>
+              <th>Location</th>
+              <th>Payment Method</th>
+              <th>Date</th>
+            </tr>
+          </thead>
+          <tbody id="donorList"></tbody>
+        </table>
+      </div>
+
+      <div id="pdfSection" style="display:none;">
+        <h2>📄 Old Donor PDF</h2>
+        <a href="donor_list.pdf" target="_blank">View PDF</a>
+      </div>
+
+      <div id="viewWorkSection" style="display:none;">
+        <h2>📋 View Work & Pay</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Description</th>
+              <th>Amount</th>
+              <th>Date</th>
+            </tr>
+          </thead>
+          <tbody id="workList"></tbody>
+        </table>
+      </div>
+
+      <div id="viewLabourSection" style="display:none;">
+        <h2>💰 View Labour Charge</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Labour Name</th>
+              <th>Charge</th>
+              <th>Work Type</th>
+              <th>Date</th>
+            </tr>
+          </thead>
+          <tbody id="labourList"></tbody>
+        </table>
+      </div>
+
+      <!-- Admin Sections -->
+      <div id="addDonorSection" class="admin-section" style="display:none;">
+        <h3>✨ Add New Donor</h3>
+        <input type="text" id="donorName" placeholder="Donor Name">
+        <input type="number" id="donorAmount" min="1" placeholder="Amount">
+        <input type="text" id="donorLocation" placeholder="Location">
+        <select id="paymentMethod">
+          <option value="UPI">UPI</option>
+          <option value="Bank">Bank</option>
+        </select>
+        <button class="save-btn" onclick="addDonor()">Save Donor</button>
+      </div>
+
+      <div id="addWorkSection" class="admin-section" style="display:none;">
+        <h3>⚙️ Add Work & Pay</h3>
+        <input type="text" id="workDescription" placeholder="Work Description">
+        <input type="number" id="workAmount" min="1" placeholder="Payment Amount">
+        <input type="date" id="workDate">
+        <button class="save-btn" onclick="addWork()">Save Work</button>
+      </div>
+
+      <div id="addLabourSection" class="admin-section" style="display:none;">
+        <h3>👷 Add Labour Charge</h3>
+        <input type="text" id="labourName" placeholder="Labour Name">
+        <input type="number" id="labourCharge" min="1" placeholder="Charge Amount">
+        <input type="text" id="labourWork" placeholder="Work Type">
+        <input type="date" id="labourDate">
+        <button class="save-btn" onclick="addLabour()">Save Labour</button>
+      </div>
     </div>
   </div>
-</div>
 
-<script>
-  function openModal() {
-    document.getElementById("donateModal").style.display = "block";
-  }
-  function closeModal() {
-    document.getElementById("donateModal").style.display = "none";
-  }
-  window.onclick = function(event) {
-    let modal = document.getElementById("donateModal");
-    if (event.target == modal) {
-      modal.style.display = "none";
+  <!-- Contact Section -->
+  <section id="contact" style="padding:50px; background:#f9f9f9; text-align:center;">
+    <h2>📬 Contact Us</h2>
+    <p>Aap apna message bhej sakte hain, hume turant email mil jayega.</p>
+    <form action="https://formspree.io/f/mnngdgze" method="POST" style="max-width:500px; margin:0 auto;">
+      <input type="text" name="name" placeholder="👤 Your Name" required>
+      <input type="email" name="_replyto" placeholder="📧 Your Email" required>
+      <textarea name="message" placeholder="💬 Your Message" required></textarea>
+      <button type="submit">📩 Send Message</button>
+    </form>
+  </section>
+
+  <script>
+    // Firebase Config
+    const firebaseConfig = {
+      apiKey: "AIzaSyDXo5T9IszbjGdDlIwpevZG2ODkf69PfJc",
+      authDomain: "bmgfoundation.firebaseapp.com",
+      projectId: "bmgfoundation",
+      storageBucket: "bmgfoundation.firebasestorage.app",
+      messagingSenderId: "887483767367",
+      appId: "1:887483767367:web:7fda6c64e035a1c2f8ef62",
+      measurementId: "G-24JKRK0CDP"
+    };
+    const app = firebase.initializeApp(firebaseConfig);
+    const analytics = firebase.analytics();
+    const db = firebase.firestore();
+    const auth = firebase.auth();
+
+    let user = null;
+
+    // Auth State Listener
+    auth.onAuthStateChanged((u) => {
+      user = u;
+      if (user) {
+        document.getElementById('adminBtn').style.display = 'block';
+        document.getElementById('logoutBtn').style.display = 'block';
+        document.getElementById('loginBtn').style.display = 'none';
+      } else {
+        document.getElementById('adminBtn').style.display = 'none';
+        document.getElementById('logoutBtn').style.display = 'none';
+        document.getElementById('loginBtn').style.display = 'block';
+      }
+    });
+
+    // Login Function
+    function login() {
+      const email = document.getElementById('loginEmail').value;
+      const password = document.getElementById('loginPassword').value;
+      if (!email || !password) {
+        alert('Email aur Password भरें!');
+        return;
+      }
+      auth.signInWithEmailAndPassword(email, password)
+        .then((userCredential) => {
+          alert('✅ लॉगिन सफल! अब Admin Panel का उपयोग करें।');
+          closeModal();
+        })
+        .catch((error) => {
+          console.error(error);
+          alert('❌ लॉगिन फेल! Email: admin@bmg.com, Password: password123 का उपयोग करें।');
+        });
     }
-  }
 
-  function addDonor() {
-    let name = document.getElementById("donorName").value;
-    let method = document.getElementById("paymentMethod").value;
-    if(name.trim() === "") {
-      alert("Please enter your name");
-      return;
+    // Logout Function
+    function logout() {
+      auth.signOut().then(() => {
+        alert('Logout सफल!');
+        closeModal();
+      }).catch((error) => {
+        console.error(error);
+        alert('Logout में त्रुटि!');
+      });
     }
-    let list = document.getElementById("donorList");
-    let li = document.createElement("li");
-    li.textContent = name + " (" + method + ")";
-    list.appendChild(li);
-    document.getElementById("donorName").value = "";
-    alert("Thank you for donating, " + name + "!");
-  }
-</script><!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>BMG FOUNDATION</title>
-<link rel="stylesheet" href="style.css">
-<style>
-/* Hero Section */
-.hero {
-  background: url('kabristan1.jpg') no-repeat center center/cover;
-  height: 80vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  text-align: center;
-}
 
-/* Modal */
-.modal {
-  display: none;
-  position: fixed;
-  z-index: 100;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  overflow: auto;
-  background-color: rgba(0,0,0,0.6);
-}
-.modal-content {
-  background-color: #fff;
-  margin: 5% auto 0 auto; /* Top 5%, left-right auto */
-  padding: 20px;
-  width: 90%;
-  max-width: 500px;
-  border-radius: 8px;
-}0
+    // Dropdown & Modal Functions
+    function toggleDropdown(e, id) {
+      document.querySelectorAll('.dropdown').forEach(d => d.style.display = 'none');
+      e.stopPropagation();
+      document.getElementById(id).style.display = 'block';
+    }
+    window.onclick = function() {
+      document.querySelectorAll('.dropdown').forEach(d => d.style.display = 'none');
+    }
+    function closeModal() {
+      document.getElementById("modal").style.display = "none";
+      hideAll();
+    }
+    function backdropClick(e) {
+      if (e.target.className === 'modal') { closeModal(); }
+    }
+    function showSection(sectionId) {
+      hideAll();
+      document.getElementById("modal").style.display = "block";
+      document.getElementById(sectionId).style.display = "block";
+      if (sectionId === 'donorSection') renderDonors();
+      if (sectionId === 'viewWorkSection') renderWorks();
+      if (sectionId === 'viewLabourSection') renderLabours();
+      if (sectionId.includes('add') && !user) {
+        alert('कृपया पहले लॉगिन करें!');
+        document.getElementById("modal").style.display = "none";
+        document.getElementById("loginSection").style.display = "block";
+      }
+    }
+    function hideAll() {
+      const sections = ["donateSection", "donorSection", "pdfSection", "loginSection", "addDonorSection", "addWorkSection", "addLabourSection", "viewWorkSection", "viewLabourSection"];
+      sections.forEach(s => document.getElementById(s).style.display = "none");
+    }
 
-}
-.close {
-  color: #aaa;
-  float: right;
-  font-size: 28px;
-  cursor: pointer;
-}
-.close:hover { color: black; }
-</style>
-</head>
-<body>
+    // Donor Functions
+    function addDonor() {
+      if (!user) { alert('कृपया पहले लॉगिन करें!'); showSection('loginSection'); return; }
+      const name = document.getElementById("donorName").value.trim();
+      const amount = parseInt(document.getElementById("donorAmount").value);
+      const location = document.getElementById("donorLocation").value.trim();
+      const method = document.getElementById("paymentMethod").value;
+      const date = new Date().toLocaleDateString();
+      if (!name || !amount) { alert("Name aur Amount required!"); return; }
+      db.collection("donors").add({ name, amount, location, method, date, addedBy: user.email })
+        .then(() => {
+          alert("✅ Donor added!");
+          document.getElementById("donorName").value = "";
+          document.getElementById("donorAmount").value = "";
+          document.getElementById("donorLocation").value = "";
+          closeModal();
+        })
+        .catch(err => { console.error(err); alert("Error adding donor!"); });
+    }
 
-<!-- Hero Section -->
-<section class="hero">
-  <h1>Bargachhiya Gaon ki Muslim Community</h1>
-  <p>Masjid, Madrasa aur Kabristan</p>
-</section>
+    function renderDonors() {
+      const list = document.getElementById("donorList");
+      list.innerHTML = "<tr><td colspan='5'>लोड हो रहा है...</td></tr>";
+      db.collection("donors").get().then(snapshot => {
+        list.innerHTML = "";
+        snapshot.forEach(doc => {
+          const d = doc.data();
+          const tr = document.createElement("tr");
+          tr.innerHTML = `<td>${d.name}</td><td>${d.amount}</td><td>${d.location}</td><td>${d.method}</td><td>${d.date}</td>`;
+          list.appendChild(tr);
+        });
+      }).catch(err => { console.error(err); alert("डोनर लिस्ट लोड करने में त्रुटि!"); });
+    }
 
-<!-- Donor Popup Button -->
-<button id="donorBtn">Donor List / PDF</button>
+    function searchDonor() {
+      const query = document.getElementById("searchDonor").value.toLowerCase();
+      const list = document.getElementById("donorList");
+      list.innerHTML = "";
+      db.collection("donors").get().then(snapshot => {
+        snapshot.forEach(doc => {
+          const d = doc.data();
+          if (d.name.toLowerCase().includes(query)) {
+            const tr = document.createElement("tr");
+            tr.innerHTML = `<td>${d.name}</td><td>${d.amount}</td><td>${d.location}</td><td>${d.method}</td><td>${d.date}</td>`;
+            list.appendChild(tr);
+          }
+        });
+      }).catch(err => { console.error(err); alert("डोनर सर्च करने में त्रुटि!"); });
+    }
 
-<!-- Popup Modal -->
-<div id="donorModal" class="modal">
-  <div class="modal-content">
-    <span class="close">&times;</span>
-    <h3>Account Statement PDF</h3>
-    <a href="AccountStatement_Report_6049611324_30092025_19_31 (1).pdf" target="_blank">View PDF</a>
-    <ul id="donorNames">
-      <li>Yasir Arfat - Donation for Kabristan</li>
-      <li>Noor Alam - Donation for Masjid</li>
-    </ul>
-  </div>
-</div>
+    // Work & Pay Functions
+    function addWork() {
+      if (!user) { alert('कृपया पहले लॉगिन करें!'); showSection('loginSection'); return; }
+      const description = document.getElementById("workDescription").value.trim();
+      const amount = parseInt(document.getElementById("workAmount").value);
+      const date = document.getElementById("workDate").value;
+      if (!description || !amount || !date) { alert("सभी फील्ड भरें!"); return; }
+      db.collection("works").add({ description, amount, date, addedBy: user.email })
+        .then(() => {
+          alert("✅ Work added!");
+          document.getElementById("workDescription").value = "";
+          document.getElementById("workAmount").value = "";
+          document.getElementById("workDate").value = "";
+          closeModal();
+        })
+        .catch(err => { console.error(err); alert("Error adding work!"); });
+    }
 
-<script>
-var modal = document.getElementById("donorModal");
-var btn = document.getElementById("donorBtn");
-var span = document.getElementsByClassName("close")[0];
+    function renderWorks() {
+      const list = document.getElementById("workList");
+      list.innerHTML = "<tr><td colspan='3'>लोड हो रहा है...</td></tr>";
+      db.collection("works").get().then(snapshot => {
+        list.innerHTML = "";
+        snapshot.forEach(doc => {
+          const w = doc.data();
+          const tr = document.createElement("tr");
+          tr.innerHTML = `<td>${w.description}</td><td>${w.amount}</td><td>${w.date}</td>`;
+          list.appendChild(tr);
+        });
+      }).catch(err => { console.error(err); alert("Work लिस्ट लोड करने में त्रुटि!"); });
+    }
 
-btn.onclick = function() { modal.style.display = "block"; }
-span.onclick = function() { modal.style.display = "none"; }
-window.onclick = function(event) { if(event.target==modal){modal.style.display="none";} }
-</script>
+    // Labour Charge Functions
+    function addLabour() {
+      if (!user) { alert('कृपया पहले लॉगिन करें!'); showSection('loginSection'); return; }
+      const name = document.getElementById("labourName").value.trim();
+      const charge = parseInt(document.getElementById("labourCharge").value);
+      const work = document.getElementById("labourWork").value.trim();
+      const date = document.getElementById("labourDate").value;
+      if (!name || !charge || !work || !date) { alert("सभी फील्ड भरें!"); return; }
+      db.collection("labours").add({ name, charge, work, date, addedBy: user.email })
+        .then(() => {
+          alert("✅ Labour added!");
+          document.getElementById("labourName").value = "";
+          document.getElementById("labourCharge").value = "";
+          document.getElementById("labourWork").value = "";
+          document.getElementById("labourDate").value = "";
+          closeModal();
+        })
+        .catch(err => { console.error(err); alert("Error adding labour!"); });
+    }
 
+    function renderLabours() {
+      const list = document.getElementById("labourList");
+      list.innerHTML = "<tr><td colspan='4'>लोड हो रहा है...</td></tr>";
+      db.collection("labours").get().then(snapshot => {
+        list.innerHTML = "";
+        snapshot.forEach(doc => {
+          const l = doc.data();
+          const tr = document.createElement("tr");
+          tr.innerHTML = `<td>${l.name}</td><td>${l.charge}</td><td>${l.work}</td><td>${l.date}</td>`;
+          list.appendChild(tr);
+        });
+      }).catch(err => { console.error(err); alert("Labour लिस्ट लोड करने में त्रुटि!"); });
+    }
+  </script>
 </body>
 </html>0
-
-
-</body>
-</html>
-0
 
