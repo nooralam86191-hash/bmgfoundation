@@ -450,6 +450,31 @@
       }).catch(err => { console.error(err); alert("Labour लिस्ट लोड करने में त्रुटि!"); });
     }
   </script>
-</body>
+</body><script>
+function checkPassword() {
+    var pass = document.getElementById("adminPass").value;
+    var correctPass = "1234"; // yahan apna password daalo
+    if(pass === correctPass){
+        document.getElementById("addDonorForm").style.display = "block";
+        document.getElementById("passwordSection").style.display = "none";
+    } else {
+        alert("Password incorrect!");
+    }
+}
+
+function addDonor(){
+    var name = document.getElementById("donorName").value;
+    var amount = document.getElementById("donorAmount").value;
+    var location = document.getElementById("donorLocation").value;
+    var method = document.getElementById("paymentMethod").value;
+
+    if(name && amount && location){
+        alert("Donor Added: "+name+" ₹"+amount);
+        // yahan tum JSON ya Firebase push kar sakte ho
+    } else {
+        alert("Please fill all fields!");
+    }
+}
+</script>
 </html>0
 
