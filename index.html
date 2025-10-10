@@ -1,77 +1,83 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>BMG Foundation</title>
 
-  <!-- Firebase SDKs (CDN) -->
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-analytics.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js"></script>
+  <!-- Firebase SDK पुराने CDN लिंक हटा दिए गए हैं -->
 
   <style>
-    *{margin:0;padding:0;box-sizing:border-box;}
-    body, html{font-family: Arial, sans-serif; background:#f4f4f4;}
-    .top-menu{
-      position:fixed; top:0; left:0; width:100%; background:#007bff; color:white;
-      display:flex; justify-content:center; align-items:center; padding:10px; z-index:1000;
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body, html { font-family: Arial, sans-serif; background: #f4f4f4; }
+    .top-menu {
+      position: fixed; top: 0; left: 0; width: 100%; background: #007bff; color: white;
+      display: flex; justify-content: center; align-items: center; padding: 10px; z-index: 1000;
     }
-    .menu-btn{
-      background:#0056b3; color:white; border:none; padding:10px 20px; margin:0 5px; border-radius:5px; cursor:pointer;
-      position:relative; font-size:16px;
+    .menu-btn {
+      background: #0056b3; color: white; border: none; padding: 10px 20px; margin: 0 5px; 
+      border-radius: 5px; cursor: pointer; position: relative; font-size: 16px;
     }
-    .menu-btn:hover{background:#004494;}
-    .admin-btn{background:#28a745;}
-    .admin-btn:hover{background:#218838;}
-    .dropdown{
-      display:none; position:absolute; top:10%; left:0; background:white; color:black;
-      min-width:10px; border-radius:5px; box-shadow:0 2px 5px rgba(0,0,0,0.3); transition:all 0.2s;
+    .menu-btn:hover { background: #004494; }
+    .admin-btn { background: #28a745; }
+    .admin-btn:hover { background: #218838; }
+    .dropdown {
+      display: none; position: absolute; top: 10%; left: 0; background: white; color: black;
+      min-width: 200px; border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.3); transition: all 0.2s;
     }
-    .dropdown .dropdown-item{
-      padding:12px; cursor:pointer; border-bottom:1px solid #eee;
+    .dropdown .dropdown-item {
+      padding: 12px; cursor: pointer; border-bottom: 1px solid #eee;
     }
-    .dropdown .dropdown-item:last-child{border-bottom:none;}
-    .dropdown .dropdown-item:hover{background:#f4f4f4;}
-    .hero{
-      margin-top:70px;
-      height:70vh;
+    .dropdown .dropdown-item:last-child { border-bottom: none; }
+    .dropdown .dropdown-item:hover { background: #f4f4f4; }
+    .hero {
+      margin-top: 70px; height: 70vh;
       background: url('kabristan1.jpg') no-repeat center center;
-      background-size:cover;
-      display:flex;
-      flex-direction:column;
-      justify-content:center;
-      align-items:center;
-      color:white; text-align:center;
+      background-size: cover;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      color: white; text-align: center;
     }
-    .hero h1{font-size:2.2em; margin-bottom:10px; font-weight:bold;}
-    .hero p{font-size:1.2em; text-shadow:2px 2px 8px rgba(0,0,0,0.4);}
-    .modal{
-      display:none; position:fixed; z-index:1001; left:0; top:0; width:100%; height:100%;
-      background:rgba(0,0,0,0.5);
+    .hero h1 { font-size: 2.2em; margin-bottom: 10px; font-weight: bold; }
+    .hero p { font-size: 1.2em; text-shadow: 2px 2px 8px rgba(0,0,0,0.4); }
+    .modal {
+      display: none; position: fixed; z-index: 1001; left: 0; top: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.5);
     }
-    .modal-content{
-      background:#fff; border-radius:10px; margin:5% auto; padding:20px; max-width:700px; position:relative;
-      min-height:100px; box-shadow: 1px 1px 20px #22222220;
+    .modal-content {
+      background: #fff; border-radius: 10px; margin: 5% auto; padding: 20px; max-width: 700px;
+      position: relative; min-height: 100px; box-shadow: 1px 1px 20px #22222220;
     }
-    .close{
-      position:absolute; top:10px; right:15px; font-size:28px; color:red; cursor:pointer;
+    .close {
+      position: absolute; top: 10px; right: 15px; font-size: 28px; color: red; cursor: pointer;
     }
-    .close:hover{color:black;}
-    input, select, button{padding:8px; margin-top:4px; width:100%; border-radius:5px; border:1px solid #bbb; box-sizing:border-box;}
-    button.save-btn, button.login-btn{background:#007bff;color:white;border:none;cursor:pointer;}
-    button.save-btn:hover, button.login-btn:hover{background:#0056b3;}
-    .logout-btn{background:#dc3545; color:white; border:none; padding:10px; border-radius:5px; cursor:pointer; margin:10px;}
-    .logout-btn:hover{background:#c82333;}
-    table{width:100%; border-collapse:collapse; margin-top:10px;}
-    th, td{border:1px solid #ccc; padding:8px 4px; text-align:center;}
-    #searchDonor{margin-bottom:10px;}
-    .admin-section{display:none;}
-    @media(max-width:600px){
-      .top-menu{flex-direction:column;}
-      .menu-btn{width:90vw;margin:4px 0;}
-      .modal-content{max-width:97vw;}
+    .close:hover { color: black; }
+    input, select, button {
+      padding: 8px; margin-top: 4px; width: 100%; border-radius: 5px; border: 1px solid #bbb; box-sizing: border-box;
+    }
+    button.save-btn, button.login-btn {
+      background: #007bff; color: white; border: none; cursor: pointer;
+    }
+    button.save-btn:hover, button.login-btn:hover { background: #0056b3; }
+    .logout-btn {
+      background: #dc3545; color: white; border: none; padding: 10px; border-radius: 5px;
+      cursor: pointer; margin: 10px;
+    }
+    .logout-btn:hover { background: #c82333; }
+    table {
+      width: 100%; border-collapse: collapse; margin-top: 10px;
+    }
+    th, td {
+      border: 1px solid #ccc; padding: 8px 4px; text-align: center;
+    }
+    #searchDonor { margin-bottom: 10px; }
+    .admin-section { display: none; }
+    @media (max-width: 600px) {
+      .top-menu { flex-direction: column; }
+      .menu-btn { width: 90vw; margin: 4px 0; }
+      .modal-content { max-width: 97vw; }
     }
   </style>
 </head>
@@ -129,9 +135,11 @@
       <!-- Login Section -->
       <div id="loginSection" style="display:none;">
         <h2>🔐 Admin Login</h2>
-        <input type="email" id="loginEmail" placeholder="Email (admin@bmg.com)">
-        <input type="password" id="loginPassword" placeholder="Password (password123)">
-        <button class="login-btn" onclick="login()">Login</button>
+        <form id="loginForm">
+          <input type="email" id="email" placeholder="Email (admin@bmg.com)" required />
+          <input type="password" id="password" placeholder="Password (password123)" required />
+          <button type="submit" class="login-btn">Login</button>
+        </form>
       </div>
 
       <div id="donateSection" style="display:none;">
@@ -140,12 +148,12 @@
         <p>Account No: <b>009910338952</b></p>
         <p>IFSC: <b>IPOS0000001</b></p>
         <p>UPI ID: <b>7050859156@axl</b></p>
-        <p><img src="Bmg scanner.jpg" alt="QR Code" style="width:180px; border-radius:8px;"></p>
+        <p><img src="Bmg scanner.jpg" alt="QR Code" style="width:180px; border-radius:8px;" /></p>
       </div>
 
       <div id="donorSection" style="display:none;">
         <h2>📄 Donor List</h2>
-        <input type="text" id="searchDonor" placeholder="Search name..." onkeyup="searchDonor()">
+        <input type="text" id="searchDonor" placeholder="Search name..." onkeyup="searchDonor()" />
         <table>
           <thead>
             <tr>
@@ -159,10 +167,9 @@
           <tbody id="donorList"></tbody>
         </table>
       </div>
-
       <div id="pdfSection" style="display:none;">
-        <h2>📄 Old Donor PDF</h2>
-        <a href=" old_donor_report.pdf" target="_blank">View PDF</a>
+        <h2>"old_donor_report.pd"f</h2>
+        <a href="donor_list.pdf" target="_blank">View PDF</a>
       </div>
 
       <div id="viewWorkSection" style="display:none;">
@@ -197,9 +204,9 @@
       <!-- Admin Sections -->
       <div id="addDonorSection" class="admin-section" style="display:none;">
         <h3>✨ Add New Donor</h3>
-        <input type="text" id="donorName" placeholder="Donor Name">
-        <input type="number" id="donorAmount" min="1" placeholder="Amount">
-        <input type="text" id="donorLocation" placeholder="Location">
+        <input type="text" id="donorName" placeholder="Donor Name" />
+        <input type="number" id="donorAmount" min="1" placeholder="Amount" />
+        <input type="text" id="donorLocation" placeholder="Location" />
         <select id="paymentMethod">
           <option value="UPI">UPI</option>
           <option value="Bank">Bank</option>
@@ -209,18 +216,18 @@
 
       <div id="addWorkSection" class="admin-section" style="display:none;">
         <h3>⚙️ Add Work & Pay</h3>
-        <input type="text" id="workDescription" placeholder="Work Description">
-        <input type="number" id="workAmount" min="1" placeholder="Payment Amount">
-        <input type="date" id="workDate">
+        <input type="text" id="workDescription" placeholder="Work Description" />
+        <input type="number" id="workAmount" min="1" placeholder="Payment Amount" />
+        <input type="date" id="workDate" />
         <button class="save-btn" onclick="addWork()">Save Work</button>
       </div>
 
       <div id="addLabourSection" class="admin-section" style="display:none;">
         <h3>👷 Add Labour Charge</h3>
-        <input type="text" id="labourName" placeholder="Labour Name">
-        <input type="number" id="labourCharge" min="1" placeholder="Charge Amount">
-        <input type="text" id="labourWork" placeholder="Work Type">
-        <input type="date" id="labourDate">
+        <input type="text" id="labourName" placeholder="Labour Name" />
+        <input type="number" id="labourCharge" min="1" placeholder="Charge Amount" />
+        <input type="text" id="labourWork" placeholder="Work Type" />
+        <input type="date" id="labourDate" />
         <button class="save-btn" onclick="addLabour()">Save Labour</button>
       </div>
     </div>
@@ -231,250 +238,231 @@
     <h2>📬 Contact Us</h2>
     <p>Aap apna message bhej sakte hain, hume turant email mil jayega.</p>
     <form action="https://formspree.io/f/mnngdgze" method="POST" style="max-width:500px; margin:0 auto;">
-      <input type="text" name="name" placeholder="👤 Your Name" required>
-      <input type="email" name="_replyto" placeholder="📧 Your Email" required>
+      <input type="text" name="name" placeholder="👤 Your Name" required />
+      <input type="email" name="_replyto" placeholder="📧 Your Email" required />
       <textarea name="message" placeholder="💬 Your Message" required></textarea>
       <button type="submit">📩 Send Message</button>
     </form>
   </section>
 
   <script>
-    // Firebase Config
-    const firebaseConfig = {
-      apiKey: "AIzaSyDXo5T9IszbjGdDlIwpevZG2ODkf69PfJc",
-      authDomain: "bmgfoundation.firebaseapp.com",
-      projectId: "bmgfoundation",
-      storageBucket: "bmgfoundation.firebasestorage.app",
-      messagingSenderId: "887483767367",
-      appId: "1:887483767367:web:7fda6c64e035a1c2f8ef62",
-      measurementId: "G-24JKRK0CDP"
-    };
-    const app = firebase.initializeApp(firebaseConfig);
-    const analytics = firebase.analytics();
-    const db = firebase.firestore();
-    const auth = firebase.auth();
-
-    let user = null;
-
-    // Auth State Listener
-    auth.onAuthStateChanged((u) => {
-      user = u;
-      if (user) {
-        document.getElementById('adminBtn').style.display = 'block';
-        document.getElementById('logoutBtn').style.display = 'block';
-        document.getElementById('loginBtn').style.display = 'none';
-      } else {
-        document.getElementById('adminBtn').style.display = 'none';
-        document.getElementById('logoutBtn').style.display = 'none';
-        document.getElementById('loginBtn').style.display = 'block';
-      }
-    });
-
-    // Login Function
-    function login() {
-      const email = document.getElementById('loginEmail').value;
-      const password = document.getElementById('loginPassword').value;
-      if (!email || !password) {
-        alert('Email aur Password भरें!');
-        return;
-      }
-      auth.signInWithEmailAndPassword(email, password)
-        .then((userCredential) => {
-          alert('✅ लॉगिन सफल! अब Admin Panel का उपयोग करें।');
-          closeModal();
-        })
-        .catch((error) => {
-          console.error(error);
-          alert('❌ लॉगिन फेल! Email: admin@bmg.com, Password: password123 का उपयोग करें।');
-        });
-    }
-
-    // Logout Function
-    function logout() {
-      auth.signOut().then(() => {
-        alert('Logout सफल!');
-        closeModal();
-      }).catch((error) => {
-        console.error(error);
-        alert('Logout में त्रुटि!');
-      });
-    }
-
     // Dropdown & Modal Functions
     function toggleDropdown(e, id) {
-      document.querySelectorAll('.dropdown').forEach(d => d.style.display = 'none');
+      document.querySelectorAll('.dropdown').forEach(d => (d.style.display = 'none'));
       e.stopPropagation();
       document.getElementById(id).style.display = 'block';
     }
-    window.onclick = function() {
-      document.querySelectorAll('.dropdown').forEach(d => d.style.display = 'none');
-    }
+
+    window.onclick = function () {
+      document.querySelectorAll('.dropdown').forEach(d => (d.style.display = 'none'));
+    };
+
     function closeModal() {
-      document.getElementById("modal").style.display = "none";
+      document.getElementById('modal').style.display = 'none';
       hideAll();
     }
+
     function backdropClick(e) {
-      if (e.target.className === 'modal') { closeModal(); }
+      if (e.target.className === 'modal') {
+        closeModal();
+      }
     }
+
     function showSection(sectionId) {
       hideAll();
-      document.getElementById("modal").style.display = "block";
-      document.getElementById(sectionId).style.display = "block";
+      document.getElementById('modal').style.display = 'block';
+      document.getElementById(sectionId).style.display = 'block';
       if (sectionId === 'donorSection') renderDonors();
       if (sectionId === 'viewWorkSection') renderWorks();
       if (sectionId === 'viewLabourSection') renderLabours();
       if (sectionId.includes('add') && !user) {
         alert('कृपया पहले लॉगिन करें!');
-        document.getElementById("modal").style.display = "none";
-        document.getElementById("loginSection").style.display = "block";
+        document.getElementById('modal').style.display = 'none';
+        document.getElementById('loginSection').style.display = 'block';
       }
     }
+
     function hideAll() {
-      const sections = ["donateSection", "donorSection", "pdfSection", "loginSection", "addDonorSection", "addWorkSection", "addLabourSection", "viewWorkSection", "viewLabourSection"];
-      sections.forEach(s => document.getElementById(s).style.display = "none");
-    }
-
-    // Donor Functions
-    function addDonor() {
-      if (!user) { alert('कृपया पहले लॉगिन करें!'); showSection('loginSection'); return; }
-      const name = document.getElementById("donorName").value.trim();
-      const amount = parseInt(document.getElementById("donorAmount").value);
-      const location = document.getElementById("donorLocation").value.trim();
-      const method = document.getElementById("paymentMethod").value;
-      const date = new Date().toLocaleDateString();
-      if (!name || !amount) { alert("Name aur Amount required!"); return; }
-      db.collection("donors").add({ name, amount, location, method, date, addedBy: user.email })
-        .then(() => {
-          alert("✅ Donor added!");
-          document.getElementById("donorName").value = "";
-          document.getElementById("donorAmount").value = "";
-          document.getElementById("donorLocation").value = "";
-          closeModal();
-        })
-        .catch(err => { console.error(err); alert("Error adding donor!"); });
-    }
-
-    function renderDonors() {
-      const list = document.getElementById("donorList");
-      list.innerHTML = "<tr><td colspan='5'>लोड हो रहा है...</td></tr>";
-      db.collection("donors").get().then(snapshot => {
-        list.innerHTML = "";
-        snapshot.forEach(doc => {
-          const d = doc.data();
-          const tr = document.createElement("tr");
-          tr.innerHTML = `<td>${d.name}</td><td>${d.amount}</td><td>${d.location}</td><td>${d.method}</td><td>${d.date}</td>`;
-          list.appendChild(tr);
-        });
-      }).catch(err => { console.error(err); alert("डोनर लिस्ट लोड करने में त्रुटि!"); });
-    }
-
-    function searchDonor() {
-      const query = document.getElementById("searchDonor").value.toLowerCase();
-      const list = document.getElementById("donorList");
-      list.innerHTML = "";
-      db.collection("donors").get().then(snapshot => {
-        snapshot.forEach(doc => {
-          const d = doc.data();
-          if (d.name.toLowerCase().includes(query)) {
-            const tr = document.createElement("tr");
-            tr.innerHTML = `<td>${d.name}</td><td>${d.amount}</td><td>${d.location}</td><td>${d.method}</td><td>${d.date}</td>`;
-            list.appendChild(tr);
-          }
-        });
-      }).catch(err => { console.error(err); alert("डोनर सर्च करने में त्रुटि!"); });
-    }
-
-    // Work & Pay Functions
-    function addWork() {
-      if (!user) { alert('कृपया पहले लॉगिन करें!'); showSection('loginSection'); return; }
-      const description = document.getElementById("workDescription").value.trim();
-      const amount = parseInt(document.getElementById("workAmount").value);
-      const date = document.getElementById("workDate").value;
-      if (!description || !amount || !date) { alert("सभी फील्ड भरें!"); return; }
-      db.collection("works").add({ description, amount, date, addedBy: user.email })
-        .then(() => {
-          alert("✅ Work added!");
-          document.getElementById("workDescription").value = "";
-          document.getElementById("workAmount").value = "";
-          document.getElementById("workDate").value = "";
-          closeModal();
-        })
-        .catch(err => { console.error(err); alert("Error adding work!"); });
-    }
-
-    function renderWorks() {
-      const list = document.getElementById("workList");
-      list.innerHTML = "<tr><td colspan='3'>लोड हो रहा है...</td></tr>";
-      db.collection("works").get().then(snapshot => {
-        list.innerHTML = "";
-        snapshot.forEach(doc => {
-          const w = doc.data();
-          const tr = document.createElement("tr");
-          tr.innerHTML = `<td>${w.description}</td><td>${w.amount}</td><td>${w.date}</td>`;
-          list.appendChild(tr);
-        });
-      }).catch(err => { console.error(err); alert("Work लिस्ट लोड करने में त्रुटि!"); });
-    }
-
-    // Labour Charge Functions
-    function addLabour() {
-      if (!user) { alert('कृपया पहले लॉगिन करें!'); showSection('loginSection'); return; }
-      const name = document.getElementById("labourName").value.trim();
-      const charge = parseInt(document.getElementById("labourCharge").value);
-      const work = document.getElementById("labourWork").value.trim();
-      const date = document.getElementById("labourDate").value;
-      if (!name || !charge || !work || !date) { alert("सभी फील्ड भरें!"); return; }
-      db.collection("labours").add({ name, charge, work, date, addedBy: user.email })
-        .then(() => {
-          alert("✅ Labour added!");
-          document.getElementById("labourName").value = "";
-          document.getElementById("labourCharge").value = "";
-          document.getElementById("labourWork").value = "";
-          document.getElementById("labourDate").value = "";
-          closeModal();
-        })
-        .catch(err => { console.error(err); alert("Error adding labour!"); });
-    }
-
-    function renderLabours() {
-      const list = document.getElementById("labourList");
-      list.innerHTML = "<tr><td colspan='4'>लोड हो रहा है...</td></tr>";
-      db.collection("labours").get().then(snapshot => {
-        list.innerHTML = "";
-        snapshot.forEach(doc => {
-          const l = doc.data();
-          const tr = document.createElement("tr");
-          tr.innerHTML = `<td>${l.name}</td><td>${l.charge}</td><td>${l.work}</td><td>${l.date}</td>`;
-          list.appendChild(tr);
-        });
-      }).catch(err => { console.error(err); alert("Labour लिस्ट लोड करने में त्रुटि!"); });
+      const sections = [
+        'donateSection',
+        'donorSection',
+        'pdfSection',
+        'loginSection',
+        'addDonorSection',
+        'addWorkSection',
+        'addLabourSection',
+        'viewWorkSection',
+        'viewLabourSection',
+      ];
+      sections.forEach((s) => {
+        document.getElementById(s).style.display = 'none';
+      });
     }
   </script>
-</body><script>
-function checkPassword() {
-    var pass = document.getElementById("adminPass").value;
-    var correctPass = "1234"; // yahan apna password daalo
-    if(pass === correctPass){
-        document.getElementById("addDonorForm").style.display = "block";
-        document.getElementById("passwordSection").style.display = "none";
-    } else {
-        alert("Password incorrect!");
-    }
-}
 
-function addDonor(){
-    var name = document.getElementById("donorName").value;
-    var amount = document.getElementById("donorAmount").value;
-    var location = document.getElementById("donorLocation").value;
-    var method = document.getElementById("paymentMethod").value;
+  <script type="module">
+    <script type="module">
+  import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js';
+  import {
+    getAuth,
+    signInWithEmailAndPassword,
+    onAuthStateChanged,
+    signOut,
+  } from 'https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js';
+  import {
+    getFirestore,
+    collection,
+    addDoc,
+    getDocs,
+    query,
+    orderBy,
+  } from 'https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js';
 
-    if(name && amount && location){
-        alert("Donor Added: "+name+" ₹"+amount);
-        // yahan tum JSON ya Firebase push kar sakte ho
-    } else {
-        alert("Please fill all fields!");
-    }
-}
+  // Firebase configuration
+  const firebaseConfig = {
+    apiKey: "AIzaSyDXo5T9IszbjGdDlIwpevZG2",
+    authDomain: "bmgfoundation.firebaseapp.com",
+    projectId: "bmgfoundation",
+    storageBucket: "bmgfoundation.appspot.com",
+    messagingSenderId: "887483767367",
+    appId: "1:887483767367:web:7fda6c64e03",
+    measurementId: "G-24JKRK0CDP"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  let user = null;
+
+  // Auth state listener
+  onAuthStateChanged(auth, (u) => {
+    user = u;
+    document.getElementById('adminBtn').style.display = user ? 'block' : 'none';
+    document.getElementById('logoutBtn').style.display = user ? 'block' : 'none';
+    document.getElementById('loginBtn').style.display = user ? 'none' : 'block';
+  });
+
+  // Login
+  document.getElementById('loginForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+    signInWithEmailAndPassword(auth, email, password)
+      .then(() => {
+        alert('✅ Login Successful!');
+        closeModal();
+        document.getElementById('loginForm').reset();
+      })
+      .catch((err) => alert('❌ Login Failed: ' + err.message));
+  });
+
+  // Logout
+  window.logout = () => {
+    signOut(auth).then(() => {
+      alert('✅ Logout Successful!');
+      closeModal();
+    });
+  };
+
+  // Add Donor
+  window.addDonor = async () => {
+    if (!user) { alert('Login required!'); showSection('loginSection'); return; }
+    const name = document.getElementById('donorName').value.trim();
+    const amount = parseInt(document.getElementById('donorAmount').value);
+    const location = document.getElementById('donorLocation').value.trim();
+    const method = document.getElementById('paymentMethod').value;
+    const date = new Date().toLocaleDateString();
+    if (!name || !amount) { alert('Name & Amount required!'); return; }
+    await addDoc(collection(db, 'donors'), { name, amount, location, method, date, addedBy: user.email });
+    alert('✅ Donor added!');
+    closeModal();
+  };
+
+  // Render Donors
+  window.renderDonors = async () => {
+    const list = document.getElementById('donorList');
+    list.innerHTML = '<tr><td colspan="5">Loading...</td></tr>';
+    const snapshot = await getDocs(collection(db, 'donors'));
+    list.innerHTML = '';
+    snapshot.forEach((doc) => {
+      const d = doc.data();
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>${d.name}</td><td>${d.amount}</td><td>${d.location}</td><td>${d.method}</td><td>${d.date}</td>`;
+      list.appendChild(tr);
+    });
+  };
+
+  // Search Donor
+  window.searchDonor = async () => {
+    const queryText = document.getElementById('searchDonor').value.toLowerCase();
+    const list = document.getElementById('donorList');
+    list.innerHTML = '';
+    const snapshot = await getDocs(collection(db, 'donors'));
+    snapshot.forEach((doc) => {
+      const d = doc.data();
+      if (d.name.toLowerCase().includes(queryText)) {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${d.name}</td><td>${d.amount}</td><td>${d.location}</td><td>${d.method}</td><td>${d.date}</td>`;
+        list.appendChild(tr);
+      }
+    });
+  };
+
+  // Add Work
+  window.addWork = async () => {
+    if (!user) { alert('Login required!'); showSection('loginSection'); return; }
+    const desc = document.getElementById('workDescription').value.trim();
+    const amount = parseInt(document.getElementById('workAmount').value);
+    const date = document.getElementById('workDate').value;
+    if (!desc || !amount || !date) { alert('Fill all fields!'); return; }
+    await addDoc(collection(db, 'works'), { description: desc, amount, date, addedBy: user.email });
+    alert('✅ Work added!');
+    closeModal();
+  };
+
+  // Render Works
+  window.renderWorks = async () => {
+    const list = document.getElementById('workList');
+    list.innerHTML = '<tr><td colspan="3">Loading...</td></tr>';
+    const snapshot = await getDocs(collection(db, 'works'));
+    list.innerHTML = '';
+    snapshot.forEach((doc) => {
+      const w = doc.data();
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>${w.description}</td><td>${w.amount}</td><td>${w.date}</td>`;
+      list.appendChild(tr);
+    });
+  };
+
+  // Add Labour
+  window.addLabour = async () => {
+    if (!user) { alert('Login required!'); showSection('loginSection'); return; }
+    const name = document.getElementById('labourName').value.trim();
+    const charge = parseInt(document.getElementById('labourCharge').value);
+    const work = document.getElementById('labourWork').value.trim();
+    const date = document.getElementById('labourDate').value;
+    if (!name || !charge || !work || !date) { alert('Fill all fields!'); return; }
+    await addDoc(collection(db, 'labours'), { name, charge, work, date, addedBy: user.email });
+    alert('✅ Labour added!');
+    closeModal();
+  };
+
+  // Render Labours
+  window.renderLabours = async () => {
+    const list = document.getElementById('labourList');
+    list.innerHTML = '<tr><td colspan="4">Loading...</td></tr>';
+    const snapshot = await getDocs(collection(db, 'labours'));
+    list.innerHTML = '';
+    snapshot.forEach((doc) => {
+      const l = doc.data();
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>${l.name}</td><td>${l.charge}</td><td>${l.work}</td><td>${l.date}</td>`;
+      list.appendChild(tr);
+    });
+  };
 </script>
+  </script>
+</body>
 </html>0
 
